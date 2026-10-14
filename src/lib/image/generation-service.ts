@@ -88,9 +88,14 @@ function mapGenerationError(err: unknown): Error {
       "OpenAI has no credits remaining. Add billing credits, then try again.",
     );
   }
-  if (lower.includes("timeout") || lower.includes("timed out")) {
+  if (
+    lower.includes("timeout") ||
+    lower.includes("timed out") ||
+    lower.includes("deadline") ||
+    lower.includes("etimedout")
+  ) {
     return new Error(
-      "Generation timed out on the host. Please try again in a moment.",
+      "Generation timed out on the host. Please try again in a moment — a clearer selfie often works faster.",
     );
   }
   if (isSafetyError(err)) {
@@ -138,13 +143,12 @@ function escapeXml(value: string): string {
  * Generates a classic-2D cartoon character from a user photo + locked style profile.
  *
  * Uses OpenAI Images Edit with:
- *   Image 1 = user photograph (identity)
- *   Image 2 = classic-2d-master.png (faceless art-direction board)
+ *   Image 1 = user photograph (identity) — first for facial fidelity
+ *   Image 2 = classic-2d-master.png (costume + style reference)
  *
- * Safety ladder:
- *   1) identity + style board + full prompt
- *   2) identity only + full prompt
- *   3) identity only + ultra-soft fallback prompt
+ * Safety ladder (max 2 attempts — fits Netlify 60s when first succeeds):
+ *   1) identity + style reference + full prompt
+ *   2) identity only + safety fallback prompt
  */
 export async function generateCharacter(
   input: GenerateCharacterInput,
@@ -199,8 +203,6 @@ export async function generateCharacter(
     type: master.mimeType,
   });
 
-  // gpt-image-1-mini does not support input_fidelity — omit for that model.
-  const supportsInputFidelity = !model.includes("mini");
   const wantsTransparent = customization.background === "transparent";
   // JPEG cannot carry transparency — use PNG only when needed.
   const outputFormat = wantsTransparent
@@ -209,9 +211,8 @@ export async function generateCharacter(
 
   const baseOptions = {
     model,
-    ...(supportsInputFidelity
-      ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
-      : {}),
+    // Identity-preserving edits: always request high input fidelity on gpt-image-1.5.
+    input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity,
     quality: Classic2DStyleProfile.modelConfig.quality,
     size: Classic2DStyleProfile.modelConfig.size,
     background: wantsTransparent
@@ -220,6 +221,7 @@ export async function generateCharacter(
     output_format: outputFormat,
   };
 
+  // Cap at 2 attempts so a safety retry still fits Netlify's ~60s function budget.
   const attempts: Array<{
     label: string;
     prompt: string;
@@ -231,15 +233,7 @@ export async function generateCharacter(
       withStyle: true,
     },
     {
-      label: "identity-only",
-      prompt: [
-        built.fullPrompt,
-        "Image 2 is unavailable. Follow the written classic 2D cape-and-crystal-blade costume direction.",
-      ].join("\n\n"),
-      withStyle: false,
-    },
-    {
-      label: "safety-fallback",
+      label: "identity-only-safety",
       prompt: buildSafetyFallbackPrompt(customization, Classic2DStyleProfile),
       withStyle: false,
     },
@@ -251,6 +245,7 @@ export async function generateCharacter(
   for (let i = 0; i < attempts.length; i++) {
     const attempt = attempts[i];
     try {
+      // Identity first (richest facial fidelity), style reference second.
       const identityFile = await makeIdentityFile();
       const images = attempt.withStyle
         ? [identityFile, styleFile]
@@ -268,7 +263,7 @@ export async function generateCharacter(
       lastErr = err;
       const canRetry = isSafetyError(err) && i < attempts.length - 1;
       console.warn(
-        `[generate] Attempt ${attempt.label} failed${canRetry ? "; retrying" : ""}:`,
+        `[generate] Attempt ${attempt.label} failed${canRetry ? "; retrying identity-only safety fallback" : ""}:`,
         err instanceof Error ? err.message : err,
       );
       if (!canRetry) {

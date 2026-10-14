@@ -40,7 +40,18 @@ const OPTIONS: {
   background: BACKGROUNDS,
 };
 
+const OPTION_LABELS: Partial<Record<string, string>> = {
+  standard: "Single Blade",
+  double: "Double Blade",
+  crossguard: "Crossguard",
+  curved: "Curved Hilt",
+  "alien-planet": "Alien Landscape",
+  transparent: "Transparent Background",
+  galaxy: "Galaxy Background",
+};
+
 function formatOption(value: string): string {
+  if (OPTION_LABELS[value]) return OPTION_LABELS[value]!;
   return value
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))

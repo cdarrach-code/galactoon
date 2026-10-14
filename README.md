@@ -2,7 +2,7 @@
 
 Turn a photograph into a **classic hand-drawn 2D** galactic cartoon character.
 
-The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customize the character (energy sword, stance, expression, background) — never the illustration style. Framing is fixed to three-quarter with the full crystal blade prop in frame. Prompts and the master style board are franchise-safe (original cape + toy prop language).
+The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customize expression, stance, energy sword, and background — never the illustration style. Costume is locked to brown and tan hooded robes. Generations use `gpt-image-1.5` with high input fidelity so the face matches the uploaded photo.
 
 ## Features
 

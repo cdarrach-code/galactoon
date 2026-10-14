@@ -23,26 +23,24 @@ describe("Classic2DStyleProfile", () => {
     expect(Classic2DStyleProfile.masterReferenceFilename).toBe(
       "classic-2d-master.png",
     );
+    expect(Classic2DStyleProfile.modelConfig.model).toBe("gpt-image-1.5");
+    expect(Classic2DStyleProfile.modelConfig.inputFidelity).toBe("high");
+    expect(Classic2DStyleProfile.profileVersion).toBe("3.0.0");
   });
 
   it("contains the locked classic 2D aesthetic requirements", () => {
     const fixed = getFixedStyleInstructions();
-    expect(fixed).toMatch(/classic hand-drawn 2D/i);
+    expect(fixed).toMatch(/classic 2D hand-drawn animation/i);
     expect(fixed).toMatch(/cel shading/i);
-    expect(fixed).toMatch(/consistent line thickness/i);
-    expect(fixed).toMatch(/hard-edged/i);
-    expect(fixed).toMatch(/slightly more realistic/i);
-    expect(fixed).toMatch(/ORIGINAL fictional/i);
-    expect(fixed).toMatch(/hooded travel cape/i);
-    expect(fixed).toMatch(/crystal blade/i);
-    expect(fixed).toMatch(/hexagonal/i);
-    expect(fixed).toMatch(/Image 2/);
-    expect(fixed).toMatch(/Do NOT invent or copy/i);
-    expect(fixed).toMatch(/Avoid:/i);
-    expect(fixed).toMatch(/anime/i);
-    expect(fixed).toMatch(/3D\/CGI/i);
-    expect(fixed).toMatch(/classic2d-v2\.1/);
-    expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber|plasma sword/i);
+    expect(fixed).toMatch(/clean dark ink outlines/i);
+    expect(fixed).toMatch(/brown and tan hooded robes/i);
+    expect(fixed).toMatch(/energy sword/i);
+    expect(fixed).toMatch(/Image 1/);
+    expect(fixed).toMatch(/identity/i);
+    expect(fixed).toMatch(/no 3D/i);
+    expect(fixed).toMatch(/no photorealism/i);
+    expect(fixed).toMatch(/AVOID:/i);
+    expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber/i);
   });
 });
 
@@ -98,10 +96,11 @@ describe("buildGenerationPrompt style lock", () => {
       expression: "focused",
     });
     expect(variable).not.toContain(getFixedStyleInstructions());
-    expect(variable).toMatch(/CHARACTER DIRECTION/);
-    expect(variable).toMatch(/complete crystal blade/i);
-    expect(variable).toMatch(/hooded travel cape|cape/i);
-    expect(variable).not.toMatch(/Jedi|Star Wars|lightsaber|plasma sword/i);
+    expect(variable).toMatch(/Character customization/i);
+    expect(variable).toMatch(/energy sword/i);
+    expect(variable).toMatch(/focused/i);
+    expect(variable).toMatch(/brown and tan hooded robes/i);
+    expect(variable).not.toMatch(/Jedi|Star Wars|lightsaber/i);
   });
 
   it("defaults match the product defaults", () => {
@@ -111,7 +110,7 @@ describe("buildGenerationPrompt style lock", () => {
     expect(built.variableCharacterInstructions).toMatch(/action/i);
     expect(built.variableCharacterInstructions).toMatch(/friendly/i);
     expect(built.variableCharacterInstructions).toMatch(/transparent/i);
-    expect(built.variableCharacterInstructions).toMatch(/three-quarter/i);
+    expect(built.fullPrompt).toMatch(/three-quarter/i);
     expect(built.variableCharacterInstructions).not.toMatch(/full-body|full body/i);
   });
 
@@ -120,7 +119,7 @@ describe("buildGenerationPrompt style lock", () => {
       // @ts-expect-error intentional legacy override attempt
       framing: "full-body",
     });
-    expect(built.variableCharacterInstructions).toMatch(/three-quarter/i);
+    expect(built.fullPrompt).toMatch(/three-quarter/i);
     expect(built.variableCharacterInstructions).not.toMatch(/full-body|full body/i);
   });
 });

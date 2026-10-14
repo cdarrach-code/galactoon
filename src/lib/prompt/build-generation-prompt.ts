@@ -10,69 +10,54 @@ import {
   type CharacterCustomization,
 } from "@/lib/style/types";
 
-const BLADE_COLOR_COPY: Record<CharacterCustomization["swordColor"], string> = {
-  blue: "bright blue glowing crystal blade",
-  green: "vivid green glowing crystal blade",
-  purple: "rich purple glowing crystal blade",
-  red: "intense red glowing crystal blade",
-  amber: "warm amber glowing crystal blade",
-  white: "brilliant white glowing crystal blade",
+const SWORD_COLOR_COPY: Record<CharacterCustomization["swordColor"], string> = {
+  blue: "blue",
+  green: "green",
+  purple: "purple",
+  red: "red",
+  amber: "amber",
+  white: "white",
 };
 
-const BLADE_DESIGN_COPY: Record<
+const SWORD_DESIGN_COPY: Record<
   CharacterCustomization["swordDesign"],
   string
 > = {
-  standard:
-    "a single crystal blade toy prop with a faceted hexagonal metal handle, emitter fins, and luminous core",
-  double:
-    "a double-ended crystal staff toy prop with glowing blades on both ends and a central grip",
-  crossguard:
-    "a crystal blade toy prop with short luminous side emitters on a hexagonal handle",
-  curved:
-    "a curved crystal blade toy prop with a sweeping luminous blade and hexagonal handle",
+  standard: "single blade",
+  double: "double blade",
+  crossguard: "crossguard",
+  curved: "curved hilt",
 };
 
-const BLADE_POSITION_COPY: Record<
+const SWORD_POSITION_COPY: Record<
   CharacterCustomization["swordPosition"],
   string
 > = {
-  raised:
-    "held raised above or beside the character so the full blade tip and handle are visible",
-  lowered:
-    "held lowered at the character's side with the full blade tip and handle still fully visible",
-  diagonal:
-    "held diagonally across the body with the full blade tip and handle fully visible",
+  raised: "raised",
+  lowered: "lowered",
+  diagonal: "diagonal across body",
 };
 
 const STANCE_COPY: Record<CharacterCustomization["stance"], string> = {
-  action: "dynamic heroic action pose with energetic but non-violent body language",
-  calm: "calm, grounded heroic stance with composed posture",
+  action: "action",
+  calm: "calm",
 };
 
 const EXPRESSION_COPY: Record<CharacterCustomization["expression"], string> = {
-  friendly: "a friendly, warm, slightly exaggerated cartoon expression",
-  focused: "a focused, determined cartoon expression",
-  serious: "a serious, resolute cartoon expression",
+  friendly: "friendly",
+  focused: "focused",
+  serious: "serious",
 };
 
 const BACKGROUND_COPY: Record<CharacterCustomization["background"], string> = {
-  transparent:
-    "place the character on a fully transparent background (no scenery)",
-  galaxy:
-    "place the character against a simplified painted starfield background in the same classic 2D cel style",
-  "alien-planet":
-    "place the character on a simplified colorful alien landscape painted in the same classic 2D cel style",
-};
-
-const FRAMING_COPY: Record<CharacterCustomization["framing"], string> = {
-  "three-quarter":
-    "three-quarter framing from mid-thighs upward, with enough headroom and side room that the complete crystal blade prop (tip through handle) and cape silhouette stay fully inside the frame",
+  transparent: "transparent background",
+  galaxy: "galaxy background",
+  "alien-planet": "alien landscape",
 };
 
 /**
  * Builds VARIABLE character instructions only.
- * Never includes or mutates fixed style text.
+ * Mirrors the product prompt template slots filled by user settings.
  */
 export function buildVariableCharacterInstructions(
   customization: CharacterCustomization,
@@ -80,24 +65,25 @@ export function buildVariableCharacterInstructions(
   const c = { ...DEFAULT_CUSTOMIZATION, ...customization };
 
   return [
-    "CHARACTER DIRECTION (VARIABLE):",
-    "Redraw the person from Image 1 as an ORIGINAL fictional classic 2D animated space adventurer with slightly more realistic adult proportions while staying hand-drawn 2D.",
-    "Give them a dramatic hooded travel cape and glowing crystal blade toy prop, while keeping Image 1's face/identity.",
-    `Facial expression: ${EXPRESSION_COPY[c.expression]}.`,
-    `Stance: ${STANCE_COPY[c.stance]}.`,
-    `Framing: ${FRAMING_COPY[c.framing]}.`,
-    `Crystal blade prop: ${BLADE_DESIGN_COPY[c.swordDesign]} with a ${BLADE_COLOR_COPY[c.swordColor]}, ${BLADE_POSITION_COPY[c.swordPosition]}.`,
-    "HARD REQUIREMENT: Show the complete crystal blade toy prop — glowing tip, full blade length, and hexagonal handle — fully visible with margin from the edges. Do not crop the prop.",
-    "Compose the hand pose so the full prop fits entirely within the three-quarter portrait canvas.",
-    `Background: ${BACKGROUND_COPY[c.background]}.`,
-    "Clothing: deep indigo hooded travel cape with copper trim and wide sleeves over sand layered traveler clothes, utility belt, dark trousers, and tall boots — fitted to Image 1's body.",
-    "Do not invent a different animation aesthetic; only vary the character attributes listed above.",
+    "Character customization:",
+    `- ${EXPRESSION_COPY[c.expression]} expression`,
+    `- ${STANCE_COPY[c.stance]} stance`,
+    `- glowing ${SWORD_COLOR_COPY[c.swordColor]} energy sword`,
+    `- sword position: ${SWORD_POSITION_COPY[c.swordPosition]}`,
+    `- sword style: ${SWORD_DESIGN_COPY[c.swordDesign]}`,
+    `- ${BACKGROUND_COPY[c.background]}`,
+    "",
+    "HARD REQUIREMENTS:",
+    "- Always show the complete energy sword from hilt to tip — do not crop the sword.",
+    "- Do not crop the character; keep a strong full silhouette in frame.",
+    "- Keep brown and tan hooded robes as the costume.",
+    "- Preserve Image 1 identity above all other visual choices.",
   ].join("\n");
 }
 
 /**
  * Ultra-soft prompt used only after an OpenAI safety rejection.
- * Keeps the locked look while stripping Image-2 / high-risk phrasing.
+ * Same look, shorter phrasing, no Image-2 dependency.
  */
 export function buildSafetyFallbackPrompt(
   customization: CharacterCustomization,
@@ -105,15 +91,14 @@ export function buildSafetyFallbackPrompt(
 ): string {
   const c = normalizeCustomization(customization);
   return [
-    "Redraw the person from Image 1 as an ORIGINAL classic hand-drawn 2D cartoon character for a wholesome family animation.",
-    "Keep their face recognizable. Clean black ink outlines and hard-edged cel shading. Not photoreal, not 3D/CGI.",
-    `Facial expression: ${EXPRESSION_COPY[c.expression]}.`,
-    `Stance: ${STANCE_COPY[c.stance]}.`,
-    "Outfit: deep indigo hooded travel cape with copper trim over layered sand traveler clothes, belt, trousers, boots.",
-    `They hold ${BLADE_DESIGN_COPY[c.swordDesign]} with a ${BLADE_COLOR_COPY[c.swordColor]}, ${BLADE_POSITION_COPY[c.swordPosition]}.`,
-    "Show the complete glowing tip and hexagonal handle with margin from the edges.",
+    "Create a clean classic 2D hand-drawn animation illustration of the person in Image 1 as an original heroic galactic warrior.",
+    "Use the photo only for identity. Preserve their recognizable face, hairstyle, facial hair, and glasses if present.",
+    "Style: classic 2D animation, clean dark ink outlines, traditional cel shading, expressive cartoon features, polished feature-animation quality. No 3D. No photorealism.",
+    "Costume: brown and tan hooded robes.",
+    `${EXPRESSION_COPY[c.expression]} expression. ${STANCE_COPY[c.stance]} stance.`,
+    `Glowing ${SWORD_COLOR_COPY[c.swordColor]} energy sword, ${SWORD_DESIGN_COPY[c.swordDesign]}, position ${SWORD_POSITION_COPY[c.swordPosition]}.`,
     `Background: ${BACKGROUND_COPY[c.background]}.`,
-    "Three-quarter framing. Friendly cartoon costume and toy prop only. No franchise logos. No real weapons. No violence.",
+    "Show the complete energy sword from hilt to tip. Do not crop the character. Strong silhouette. Original character only — no copyrighted characters.",
     `Style lock version: ${profile.styleVersion} (profile ${profile.profileVersion}).`,
   ].join("\n");
 }
@@ -173,10 +158,7 @@ export function enforceStyleLock(
 ): BuiltPrompt {
   const expectedFixed = getFixedStyleInstructions(profile);
   if (prompt.fixedStyleInstructions !== expectedFixed) {
-    return buildGenerationPrompt(
-      DEFAULT_CUSTOMIZATION,
-      profile,
-    );
+    return buildGenerationPrompt(DEFAULT_CUSTOMIZATION, profile);
   }
   if (!prompt.fullPrompt.includes(expectedFixed)) {
     return {

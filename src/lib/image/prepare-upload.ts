@@ -5,7 +5,7 @@
  */
 
 const MAX_EDGE = 1536;
-const JPEG_QUALITY = 0.86;
+const JPEG_QUALITY = 0.92;
 
 function extensionForMime(mime: string): string {
   if (mime.includes("png")) return "png";
