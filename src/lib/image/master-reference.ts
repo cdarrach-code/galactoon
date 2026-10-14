@@ -28,15 +28,27 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
+function getPublicReferencePath(): string {
+  return path.join(
+    /*turbopackIgnore: true*/ process.cwd(),
+    "public",
+    "style-references",
+    Classic2DStyleProfile.masterReferenceFilename,
+  );
+}
+
 /**
  * Resolves the permanent master style reference for every generation.
  * Regular users cannot change this; admins replace via config/upload.
+ * Falls back to public/ for serverless hosts (Netlify) where assets/ may
+ * not be present in the function bundle.
  */
 export async function loadMasterStyleReference(): Promise<MasterReferenceAsset> {
   const config = await readAdminConfig();
   const configured = resolveReferencePath(config.masterReferencePath);
   const override = getOverrideReferencePath();
   const fallback = getDefaultReferencePath();
+  const publicFallback = getPublicReferencePath();
 
   let absolutePath = configured;
   let source: MasterReferenceAsset["source"] = "configured";
@@ -48,6 +60,9 @@ export async function loadMasterStyleReference(): Promise<MasterReferenceAsset> 
     } else if (await fileExists(fallback)) {
       absolutePath = fallback;
       source = "default";
+    } else if (await fileExists(publicFallback)) {
+      absolutePath = publicFallback;
+      source = "default";
     } else {
       throw new Error(
         `Master style reference not found. Expected ${Classic2DStyleProfile.masterReferenceFilename} at ${fallback}`,
@@ -55,7 +70,7 @@ export async function loadMasterStyleReference(): Promise<MasterReferenceAsset> 
     }
   } else if (absolutePath === override) {
     source = "override";
-  } else if (absolutePath === fallback) {
+  } else if (absolutePath === fallback || absolutePath === publicFallback) {
     source = "default";
   }
 

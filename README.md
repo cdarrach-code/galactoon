@@ -25,6 +25,27 @@ Open [http://127.0.0.1:4321](http://127.0.0.1:4321).
 
 Without `OPENAI_API_KEY`, generation returns a mock preview so the UI stays usable.
 
+## Deploy on Netlify (mobile testing)
+
+This app is configured for Netlify (`netlify.toml`). Connect the GitHub repo or deploy with the CLI:
+
+```bash
+npm install -g netlify-cli
+netlify login
+netlify init    # or: netlify link
+netlify deploy --prod
+```
+
+In **Site settings → Environment variables**, add:
+
+| Variable | Required | Notes |
+|---|---|---|
+| `OPENAI_API_KEY` | For live images | Omit for mock preview mode |
+| `ADMIN_API_TOKEN` | Optional | Protects `/admin` and `/compare` APIs |
+| `DEV_COMPARISON_MODE` | Optional | Defaults on via `netlify.toml` |
+
+Admin master-reference uploads do not persist on serverless hosts (ephemeral filesystem). Ship a new `classic-2d-master.png` via git for permanent style updates.
+
 ### Scripts
 
 | Command | Description |
