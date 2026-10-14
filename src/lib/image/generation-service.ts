@@ -162,6 +162,11 @@ export async function generateCharacter(
   // Identity first (richest facial fidelity), style reference second.
   // gpt-image-1-mini does not support input_fidelity — omit for that model.
   const supportsInputFidelity = !model.includes("mini");
+  const wantsTransparent = customization.background === "transparent";
+  // JPEG cannot carry transparency — use PNG only when needed.
+  const outputFormat = wantsTransparent
+    ? "png"
+    : Classic2DStyleProfile.modelConfig.outputFormat;
   let result;
   try {
     result = await client.images.edit({
@@ -173,9 +178,8 @@ export async function generateCharacter(
         : {}),
       quality: Classic2DStyleProfile.modelConfig.quality,
       size: Classic2DStyleProfile.modelConfig.size,
-      background:
-        customization.background === "transparent" ? "transparent" : "opaque",
-      output_format: Classic2DStyleProfile.modelConfig.outputFormat,
+      background: wantsTransparent ? "transparent" : "opaque",
+      output_format: outputFormat,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
@@ -204,7 +208,7 @@ export async function generateCharacter(
 
   return {
     imageBase64,
-    mimeType: `image/${Classic2DStyleProfile.modelConfig.outputFormat}`,
+    mimeType: `image/${outputFormat === "jpeg" ? "jpeg" : outputFormat}`,
     metadata: { ...metadataBase, mock: false },
     prompt: {
       fullPrompt: built.fullPrompt,

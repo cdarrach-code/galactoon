@@ -9,14 +9,16 @@
 
 # Bundle style assets + admin defaults into serverless functions so
 # classic-2d-master.png is available at runtime on Netlify.
-# Raise timeout as high as the account plan allows (image generation is slow).
 [functions]
-  timeout = 60
   included_files = [
     "assets/style-references/**",
     "public/style-references/**",
     "data/admin-config.json"
   ]
+
+# Raise timeout for the Next.js server handler (image generation is slow).
+[functions."___netlify-server-handler"]
+  timeout = 60
 
 # Next.js is auto-detected; OpenNext adapter is applied by Netlify.
 # Set OPENAI_API_KEY in the Netlify UI (Site settings → Environment variables)
