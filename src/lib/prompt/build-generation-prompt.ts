@@ -11,12 +11,12 @@ import {
 } from "@/lib/style/types";
 
 const SWORD_COLOR_COPY: Record<CharacterCustomization["swordColor"], string> = {
-  blue: "bright blue plasma blade",
-  green: "vivid green plasma blade",
-  purple: "rich purple plasma blade",
-  red: "intense red plasma blade",
-  amber: "warm amber plasma blade",
-  white: "brilliant white plasma blade",
+  blue: "bright blue glowing plasma sword blade like Image 2",
+  green: "vivid green glowing plasma sword blade",
+  purple: "rich purple glowing plasma sword blade",
+  red: "intense red glowing plasma sword blade",
+  amber: "warm amber glowing plasma sword blade",
+  white: "brilliant white glowing plasma sword blade",
 };
 
 const SWORD_DESIGN_COPY: Record<
@@ -24,13 +24,13 @@ const SWORD_DESIGN_COPY: Record<
   string
 > = {
   standard:
-    "a single original plasma blade with a modern geometric metal hilt and glowing blade",
+    "a single plasma sword with a compact cylindrical metal hilt and luminous blade core matching Image 2's weapon treatment",
   double:
-    "an original double-ended plasma staff with glowing blades on both ends and a central grip",
+    "a double-ended plasma staff with glowing blades on both ends and a central grip, same glow language as Image 2",
   crossguard:
-    "an original plasma blade with short luminous side emitters on a geometric hilt",
+    "a plasma sword with short luminous side emitters on a cylindrical hilt, same glow language as Image 2",
   curved:
-    "an original curved plasma blade with a sweeping glowing edge and geometric hilt",
+    "a curved plasma sword with a sweeping glowing blade and cylindrical hilt, same glow language as Image 2",
 };
 
 const SWORD_POSITION_COPY: Record<
@@ -67,7 +67,7 @@ const BACKGROUND_COPY: Record<CharacterCustomization["background"], string> = {
 
 const FRAMING_COPY: Record<CharacterCustomization["framing"], string> = {
   "three-quarter":
-    "three-quarter framing from mid-thighs upward, with enough headroom and side room that the complete plasma blade (tip through hilt) stays fully inside the frame",
+    "three-quarter framing from mid-thighs upward, with enough headroom and side room that the complete plasma sword (tip through hilt) and cloak silhouette stay fully inside the frame",
 };
 
 /**
@@ -81,16 +81,16 @@ export function buildVariableCharacterInstructions(
 
   return [
     "CHARACTER DIRECTION (VARIABLE):",
-    "Redraw the person from Image 1 as an ORIGINAL fictional classic 2D animated sci-fi explorer with slightly more realistic adult proportions while staying hand-drawn 2D.",
-    "This must be an original character design — not a recreation of any existing franchise character or costume.",
+    "Redraw the person from Image 1 as an ORIGINAL fictional classic 2D animated space hero with slightly more realistic adult proportions while staying hand-drawn 2D.",
+    "Match Image 2's costume and plasma-sword look closely (hooded cloak, layered tunic, belt, boots, glowing cylindrical-hilt plasma sword), but keep Image 1's face/identity.",
     `Facial expression: ${EXPRESSION_COPY[c.expression]}.`,
     `Stance: ${STANCE_COPY[c.stance]}.`,
     `Framing: ${FRAMING_COPY[c.framing]}.`,
-    `Plasma blade prop: ${SWORD_DESIGN_COPY[c.swordDesign]} with a ${SWORD_COLOR_COPY[c.swordColor]}, ${SWORD_POSITION_COPY[c.swordPosition]}.`,
-    "HARD REQUIREMENT: Show the complete plasma blade in the final image — glowing tip, full blade length, and geometric hilt all visible with margin from the edges. Do not crop the prop.",
-    "Compose the hand pose so the full prop fits entirely within the three-quarter portrait canvas.",
+    `Plasma sword: ${SWORD_DESIGN_COPY[c.swordDesign]} with a ${SWORD_COLOR_COPY[c.swordColor]}, ${SWORD_POSITION_COPY[c.swordPosition]}.`,
+    "HARD REQUIREMENT: Show the complete plasma sword — glowing tip, full blade length, and cylindrical hilt — fully visible with margin from the edges. Do not crop the weapon.",
+    "Compose the hand pose so the full sword fits entirely within the three-quarter portrait canvas.",
     `Background: ${BACKGROUND_COPY[c.background]}.`,
-    "Clothing: original sci-fi explorer jacket, trousers, boots, and utility belt rendered with the same clean cel-shaded fold language as Image 2, adapted to the subject — do not copy Image 2's exact outfit or identity.",
+    "Clothing: hooded dark-brown cloak with wide sleeves over a cream/tan layered tunic, utility belt, dark trousers, and tall brown boots — same cloak-and-sword silhouette as Image 2, fitted to Image 1's body.",
     "Do not invent a different animation aesthetic; only vary the character attributes listed above.",
   ].join("\n");
 }
