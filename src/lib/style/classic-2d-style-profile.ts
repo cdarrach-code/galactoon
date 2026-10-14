@@ -53,11 +53,13 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
   name: "Classic Hand-Drawn 2D Feature Film",
   masterReferenceFilename: "classic-2d-master.png",
   modelConfig: {
-    model: "gpt-image-1.5",
-    quality: "high",
-    inputFidelity: "high",
-    size: "1024x1536",
-    outputFormat: "png",
+    // Prefer speed/reliability on serverless hosts (Netlify ~30–60s limits).
+    // gpt-image-1-mini + medium quality usually completes before platform timeouts.
+    model: "gpt-image-1-mini",
+    quality: "medium",
+    inputFidelity: "low",
+    size: "1024x1024",
+    outputFormat: "jpeg",
   },
   fixedStyleInstructions: [
     "ARTISTIC STYLE (LOCKED — classic2d-v2):",

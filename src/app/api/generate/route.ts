@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateCharacter } from "@/lib/image/generation-service";
 import { parseCustomization } from "@/lib/style/customization-schema";
 
+// Ask the platform for the longest available synchronous window.
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const form = await request.formData();
@@ -18,6 +21,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Uploaded photograph is empty." },
         { status: 400 },
+      );
+    }
+
+    // Soft guard against oversized uploads that can crash serverless handlers.
+    if (photo.size > 8 * 1024 * 1024) {
+      return NextResponse.json(
+        {
+          error: "Photo too large.",
+          details:
+            "That photo is too large. Try Upload photo with a smaller JPG, or take another selfie.",
+        },
+        { status: 413 },
       );
     }
 
@@ -39,8 +54,8 @@ export async function POST(request: NextRequest) {
 
     const result = await generateCharacter({
       photoBytes: bytes,
-      photoFilename: photo.name || "photo.png",
-      photoMimeType: photo.type || "image/png",
+      photoFilename: photo.name || "photo.jpg",
+      photoMimeType: photo.type || "image/jpeg",
       customization,
       forceMock,
     });
@@ -49,7 +64,6 @@ export async function POST(request: NextRequest) {
       image: `data:${result.mimeType};base64,${result.imageBase64}`,
       metadata: result.metadata,
       prompt: {
-        // Expose structure for debugging / verification; fixed block is immutable.
         styleVersion: result.metadata.styleVersion,
         fixedStyleIncluded: true,
         variableCharacterInstructions:
@@ -58,10 +72,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error("[generate]", err);
+    const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
       {
         error: "Character generation failed.",
-        details: err instanceof Error ? err.message : String(err),
+        details: message,
       },
       { status: 500 },
     );

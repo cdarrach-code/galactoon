@@ -160,13 +160,17 @@ export async function generateCharacter(
   });
 
   // Identity first (richest facial fidelity), style reference second.
+  // gpt-image-1-mini does not support input_fidelity — omit for that model.
+  const supportsInputFidelity = !model.includes("mini");
   let result;
   try {
     result = await client.images.edit({
       model,
       image: [identityFile, styleFile],
       prompt: built.fullPrompt,
-      input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity,
+      ...(supportsInputFidelity
+        ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
+        : {}),
       quality: Classic2DStyleProfile.modelConfig.quality,
       size: Classic2DStyleProfile.modelConfig.size,
       background:
@@ -175,13 +179,19 @@ export async function generateCharacter(
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
+    const lower = message.toLowerCase();
     if (
-      message.toLowerCase().includes("credit") ||
-      message.toLowerCase().includes("quota") ||
-      message.toLowerCase().includes("billing")
+      lower.includes("credit") ||
+      lower.includes("quota") ||
+      lower.includes("billing")
     ) {
       throw new Error(
         "OpenAI has no credits remaining. Add billing credits, then try again.",
+      );
+    }
+    if (lower.includes("timeout") || lower.includes("timed out")) {
+      throw new Error(
+        "Generation timed out on the host. Please try again in a moment.",
       );
     }
     throw err;

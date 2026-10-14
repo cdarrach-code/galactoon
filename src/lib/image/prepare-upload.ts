@@ -118,6 +118,15 @@ export function friendlyGenerateError(
   ) {
     return "OpenAI has no credits remaining. Add billing credits, then try again.";
   }
+  if (
+    status === 504 ||
+    status === 502 ||
+    combined.includes("timeout") ||
+    combined.includes("timed out") ||
+    combined.includes("unknown error has occurred")
+  ) {
+    return "Generation took too long on the server. Please try again — a clearer selfie often works faster.";
+  }
   if (status === 413 || combined.includes("too large") || combined.includes("entity too large")) {
     return "That photo is too large. Try taking another selfie or uploading a smaller image.";
   }
@@ -126,6 +135,8 @@ export function friendlyGenerateError(
   }
   if (payload?.details) return payload.details;
   if (payload?.error) return payload.error;
-  if (fallback instanceof Error) return fallback.message;
+  if (fallback instanceof Error && fallback.message !== "Generation failed. Please try again.") {
+    return fallback.message;
+  }
   return "Generation failed. Please try again.";
 }

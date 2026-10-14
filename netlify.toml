@@ -7,13 +7,11 @@
   # Enable developer comparison UI on the hosted site (admin still gated).
   DEV_COMPARISON_MODE = "true"
 
-# Allow larger selfie uploads (default body limits are too small for phone cameras).
-[functions."___netlify-server-handler"]
-  timeout = 60
-
 # Bundle style assets + admin defaults into serverless functions so
 # classic-2d-master.png is available at runtime on Netlify.
+# Raise timeout as high as the account plan allows (image generation is slow).
 [functions]
+  timeout = 60
   included_files = [
     "assets/style-references/**",
     "public/style-references/**",
