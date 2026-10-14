@@ -7,7 +7,7 @@
 
 import { STYLE_VERSION, type StyleVersion } from "./types";
 
-export const CLASSIC_2D_STYLE_PROFILE_VERSION = "2.1.0";
+export const CLASSIC_2D_STYLE_PROFILE_VERSION = "2.2.0";
 
 export interface Classic2DStyleProfile {
   /** Public style lock identifier stored with generated image metadata. */
@@ -48,7 +48,6 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
   name: "Classic Hand-Drawn 2D Feature Film",
   masterReferenceFilename: "classic-2d-master.png",
   modelConfig: {
-    // Portrait canvas helps keep the full energy sword in frame.
     model: "gpt-image-1-mini",
     quality: "medium",
     inputFidelity: "low",
@@ -56,32 +55,41 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
     outputFormat: "jpeg",
   },
   fixedStyleInstructions: [
+    "SAFETY / ORIGINALITY:",
+    "Create an ORIGINAL fictional animated character for a family-friendly sci-fi adventure.",
+    "Do not depict copyrighted characters, trademarked costumes, franchise logos, or lookalikes from existing movies, games, or TV shows.",
+    "Keep the content wholesome and non-violent: heroic pose only, no blood, gore, hate, or adult content.",
+    "",
     "ARTISTIC STYLE (LOCKED — classic2d-v2.1):",
     "Render in a classic hand-drawn 2D animated feature-film / premium Western TV-animation aesthetic.",
-    "Match Image 2 (classic-2d-master.png) for artistic treatment: linework, cel shading, color richness, hair rendering, fabric folds, and polish — while keeping the subject from Image 1 slightly more realistic and likeness-faithful.",
+    "Use Image 2 only as an art-style guide for linework, cel shading, color richness, hair rendering, fabric folds, and polish.",
+    "Keep the subject from Image 1 slightly more realistic and likeness-faithful while remaining clearly hand-drawn 2D.",
     "LINEWORK: Clean, confident black ink outlines with consistent line thickness — crisp and professional, not sketchy or painterly.",
-    "SHADING: Traditional hard-edged cel shading with two or three distinct tonal values per surface (base, shadow, optional highlight). Energy-sword glow may be softly luminous.",
-    "PROPORTIONS: Slightly more realistic adult proportions than broad cartoon caricature — natural head-to-body scale, believable shoulders and hands — while remaining clearly classic 2D animation (not photoreal, not CGI).",
+    "SHADING: Traditional hard-edged cel shading with two or three distinct tonal values per surface (base, shadow, optional highlight). Soft glow only on the plasma blade.",
+    "PROPORTIONS: Slightly more realistic adult proportions than broad caricature — natural head-to-body scale, believable shoulders and hands — while remaining classic 2D animation (not photoreal, not CGI).",
     "FACE: Recognizable likeness to Image 1 with simplified but grounded features; expressive eyes with catchlights; restrained exaggeration; glasses (if worn) as clean graphic shapes.",
     "HAIR / FACIAL HAIR: Hand-illustrated silhouette shapes with a few internal contour lines — not photo texture.",
-    "CLOTHING: Smooth, simplified folds as logical clean lines and large shadow blocks (layered tunic/robe language).",
+    "CLOTHING: Original sci-fi explorer outfit with smooth simplified folds (jacket/tunic, trousers, boots, utility belt). Do not use monastic robes, hooded cloaks, or any franchise-specific costume language.",
     "COLOR: Rich, saturated, consistent flat colors.",
-    "ENERGY SWORD (REQUIRED): The complete energy sword must appear in-frame — glowing blade tip AND hilt both fully visible with clear margin from every edge. Never crop, clip, or hide the tip or hilt. Compose the pose and three-quarter framing so the whole weapon reads clearly.",
-    "Every generated character must look like it belongs in the same animated production as Image 2.",
+    "PLASMA BLADE (REQUIRED): Include a complete original glowing plasma blade prop — tip and geometric metal hilt both fully visible with margin from every edge. Never crop the tip or hilt. Keep the weapon stylized and toy-like rather than realistic military gear.",
+    "Every generated character should feel like it belongs in the same original animated production.",
   ].join("\n"),
   identityAndReferenceRules: [
     "IMAGE ROLES:",
     "Image 1 is the uploaded photograph that defines the character's IDENTITY only (face shape, age cues, hair color/style cues, skin tone cues, glasses if worn, distinctive features).",
-    "Image 2 is the permanent master style reference (classic-2d-master.png). Use it ONLY for artistic treatment: outlines, cel shading, proportions language, color richness, hair/beard drawing language, and clothing-fold simplification.",
+    "Image 2 is the permanent master style reference (classic-2d-master.png). Use it ONLY for artistic treatment: outlines, cel shading, proportions language, color richness, hair drawing language, and clothing-fold simplification.",
     "CRITICAL: Do NOT transfer the identity, facial features, hairline, beard pattern, glasses design, body type, clothing, or likeness of the person shown in Image 2 onto the subject.",
-    "Preserve Image 1's recognizable identity while fully redrawing them as a classic 2D cartoon character in Image 2's artistic style, with slightly more realistic proportions.",
+    "Preserve Image 1's recognizable identity while fully redrawing them as an original classic 2D cartoon character in Image 2's artistic style.",
   ].join("\n"),
   avoidInstructions: [
     "AVOID:",
+    "copyrighted or trademarked characters and costumes,",
+    "franchise lookalikes,",
     "3D or CGI rendering, photorealistic skin pores or photographic textures,",
     "anime-style rendering, comic-book halftone effects,",
     "hyperrealistic fabric or lighting, soft painterly brushwork,",
-    "cropped or incomplete energy swords,",
+    "cropped or incomplete plasma blades,",
+    "weapons that look like real firearms,",
     "and any dramatic change in illustration style away from classic2d-v2.1.",
   ].join(" "),
 };

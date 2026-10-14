@@ -32,13 +32,16 @@ describe("Classic2DStyleProfile", () => {
     expect(fixed).toMatch(/consistent line thickness/i);
     expect(fixed).toMatch(/hard-edged/i);
     expect(fixed).toMatch(/slightly more realistic/i);
-    expect(fixed).toMatch(/complete energy sword/i);
+    expect(fixed).toMatch(/ORIGINAL fictional/i);
+    expect(fixed).toMatch(/copyrighted/i);
+    expect(fixed).toMatch(/plasma blade/i);
     expect(fixed).toMatch(/Image 2/);
     expect(fixed).toMatch(/Do NOT transfer the identity/i);
     expect(fixed).toMatch(/Avoid:/i);
     expect(fixed).toMatch(/anime/i);
     expect(fixed).toMatch(/3D or CGI/i);
     expect(fixed).toMatch(/classic2d-v2\.1/);
+    expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber/i);
   });
 });
 
@@ -95,7 +98,8 @@ describe("buildGenerationPrompt style lock", () => {
     });
     expect(variable).not.toContain(getFixedStyleInstructions());
     expect(variable).toMatch(/CHARACTER DIRECTION/);
-    expect(variable).toMatch(/complete energy sword/i);
+    expect(variable).toMatch(/complete plasma blade/i);
+    expect(variable).not.toMatch(/Jedi|Star Wars|lightsaber/i);
   });
 
   it("defaults match the product defaults", () => {

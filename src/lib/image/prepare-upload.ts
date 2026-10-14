@@ -133,6 +133,14 @@ export function friendlyGenerateError(
   if (combined.includes("expected pattern") || combined.includes("syntaxerror")) {
     return "Could not process that photo on this device. Try Upload photo with a JPG/PNG, or take another selfie.";
   }
+  if (
+    combined.includes("safety") ||
+    combined.includes("rejected") ||
+    combined.includes("moderation") ||
+    combined.includes("policy")
+  ) {
+    return "That request was blocked by the image safety system. Try a different photo or settings.";
+  }
   if (payload?.details) return payload.details;
   if (payload?.error) return payload.error;
   if (fallback instanceof Error && fallback.message !== "Generation failed. Please try again.") {

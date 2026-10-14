@@ -198,6 +198,16 @@ export async function generateCharacter(
         "Generation timed out on the host. Please try again in a moment.",
       );
     }
+    if (
+      lower.includes("safety") ||
+      lower.includes("moderation") ||
+      lower.includes("rejected") ||
+      lower.includes("policy")
+    ) {
+      throw new Error(
+        "That request was blocked by the image safety system. Try a different photo or settings.",
+      );
+    }
     throw err;
   }
 
