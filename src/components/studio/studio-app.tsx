@@ -7,6 +7,11 @@ import { PhotoUpload } from "@/components/studio/photo-upload";
 import { CustomizationPanel } from "@/components/studio/customization-panel";
 import { GenerationResult } from "@/components/studio/generation-result";
 import {
+  friendlyGenerateError,
+  preparePhotoForUpload,
+  readJsonSafe,
+} from "@/lib/image/prepare-upload";
+import {
   DEFAULT_CUSTOMIZATION,
   type CharacterCustomization,
   type GeneratedImageMetadata,
@@ -41,8 +46,9 @@ export function StudioApp() {
     startTransition(async () => {
       setError(null);
       try {
+        const prepared = await preparePhotoForUpload(file);
         const form = new FormData();
-        form.append("photo", file);
+        form.append("photo", prepared, prepared.name);
         form.append(
           "customization",
           JSON.stringify({ ...customization, framing: "three-quarter" }),
@@ -52,23 +58,30 @@ export function StudioApp() {
           method: "POST",
           body: form,
         });
-        const payload = (await response.json()) as {
+
+        const payload = await readJsonSafe<{
           image?: string;
           metadata?: GeneratedImageMetadata;
           error?: string;
           details?: string;
-        };
+        }>(response);
 
         if (!response.ok) {
-          throw new Error(payload.details || payload.error || "Request failed");
+          throw new Error(
+            friendlyGenerateError(response.status, payload, null),
+          );
         }
 
-        setImageUrl(payload.image ?? null);
+        if (!payload?.image) {
+          throw new Error("No image was returned. Please try again.");
+        }
+
+        setImageUrl(payload.image);
         setMetadata(payload.metadata ?? null);
       } catch (err) {
         setImageUrl(null);
         setMetadata(null);
-        setError(err instanceof Error ? err.message : String(err));
+        setError(friendlyGenerateError(0, null, err));
       }
     });
   }

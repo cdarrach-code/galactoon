@@ -40,6 +40,30 @@ function getClient(): OpenAI | null {
   return new OpenAI({ apiKey: key });
 }
 
+function sanitizeUploadFilename(
+  filename: string | undefined,
+  mimeType: string | undefined,
+): string {
+  const raw = (filename || "photo.jpg").split(/[/\\]/).pop() || "photo.jpg";
+  const cleaned = raw.replace(/[^a-zA-Z0-9._-]/g, "_");
+  if (/\.(png|jpe?g|webp)$/i.test(cleaned)) return cleaned;
+  if (mimeType?.includes("png")) return "photo.png";
+  if (mimeType?.includes("webp")) return "photo.webp";
+  return "photo.jpg";
+}
+
+function normalizeImageMime(
+  mimeType: string | undefined,
+  filename: string,
+): string {
+  if (mimeType && /^image\/(png|jpeg|jpg|webp)$/i.test(mimeType)) {
+    return mimeType === "image/jpg" ? "image/jpeg" : mimeType;
+  }
+  if (filename.toLowerCase().endsWith(".png")) return "image/png";
+  if (filename.toLowerCase().endsWith(".webp")) return "image/webp";
+  return "image/jpeg";
+}
+
 function mockCartoonPng(label: string): string {
   // Minimal valid 1x1 PNG — UI shows a styled placeholder panel when mock.
   // Real generations return gpt-image output; mock keeps the app runnable offline.
@@ -122,27 +146,46 @@ export async function generateCharacter(
     };
   }
 
-  const identityFile = await toFile(
-    input.photoBytes,
-    input.photoFilename ?? "identity.png",
-    { type: input.photoMimeType ?? "image/png" },
+  const safeName = sanitizeUploadFilename(
+    input.photoFilename,
+    input.photoMimeType,
   );
+  const safeMime = normalizeImageMime(input.photoMimeType, safeName);
+
+  const identityFile = await toFile(input.photoBytes, safeName, {
+    type: safeMime,
+  });
   const styleFile = await toFile(master.bytes, master.filename, {
     type: master.mimeType,
   });
 
   // Identity first (richest facial fidelity), style reference second.
-  const result = await client.images.edit({
-    model,
-    image: [identityFile, styleFile],
-    prompt: built.fullPrompt,
-    input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity,
-    quality: Classic2DStyleProfile.modelConfig.quality,
-    size: Classic2DStyleProfile.modelConfig.size,
-    background:
-      customization.background === "transparent" ? "transparent" : "opaque",
-    output_format: Classic2DStyleProfile.modelConfig.outputFormat,
-  });
+  let result;
+  try {
+    result = await client.images.edit({
+      model,
+      image: [identityFile, styleFile],
+      prompt: built.fullPrompt,
+      input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity,
+      quality: Classic2DStyleProfile.modelConfig.quality,
+      size: Classic2DStyleProfile.modelConfig.size,
+      background:
+        customization.background === "transparent" ? "transparent" : "opaque",
+      output_format: Classic2DStyleProfile.modelConfig.outputFormat,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (
+      message.toLowerCase().includes("credit") ||
+      message.toLowerCase().includes("quota") ||
+      message.toLowerCase().includes("billing")
+    ) {
+      throw new Error(
+        "OpenAI has no credits remaining. Add billing credits, then try again.",
+      );
+    }
+    throw err;
+  }
 
   const imageBase64 = result.data?.[0]?.b64_json;
   if (!imageBase64) {
