@@ -160,10 +160,10 @@ export async function generateCharacter(
   const master = await loadMasterStyleReference();
   const model = Classic2DStyleProfile.modelConfig.model;
 
-  const metadataBase: Omit<GeneratedImageMetadata, "mock"> = {
+  // Metadata model is filled after we resolve transparent-background fallback.
+  const metadataBase: Omit<GeneratedImageMetadata, "mock" | "model"> = {
     styleVersion: Classic2DStyleProfile.styleVersion,
     styleProfileVersion: Classic2DStyleProfile.profileVersion,
-    model,
     masterReferenceId: master.referenceId,
     customization,
     createdAt: new Date().toISOString(),
@@ -180,7 +180,7 @@ export async function generateCharacter(
     return {
       imageBase64: mockCartoonPng(`Toon · ${hash}`),
       mimeType: "image/svg+xml",
-      metadata: { ...metadataBase, mock: true },
+      metadata: { ...metadataBase, model, mock: true },
       prompt: {
         fullPrompt: built.fullPrompt,
         fixedStyleInstructions: built.fixedStyleInstructions,
@@ -200,6 +200,11 @@ export async function generateCharacter(
   }
 
   const wantsTransparent = customization.background === "transparent";
+  // gpt-image-2 does not support transparent backgrounds — fall back for alpha.
+  const effectiveModel =
+    wantsTransparent && model.includes("gpt-image-2")
+      ? "gpt-image-1.5"
+      : model;
   // JPEG cannot carry transparency — use PNG only when needed.
   const outputFormat = wantsTransparent
     ? "png"
@@ -207,10 +212,11 @@ export async function generateCharacter(
 
   // gpt-image-2 rejects input_fidelity (always high). Older models need it.
   const supportsInputFidelity =
-    !model.includes("gpt-image-2") && !model.includes("mini");
+    !effectiveModel.includes("gpt-image-2") &&
+    !effectiveModel.includes("mini");
 
   const baseOptions = {
-    model,
+    model: effectiveModel,
     ...(supportsInputFidelity
       ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
       : {}),
@@ -279,7 +285,7 @@ export async function generateCharacter(
   return {
     imageBase64,
     mimeType: `image/${outputFormat === "jpeg" ? "jpeg" : outputFormat}`,
-    metadata: { ...metadataBase, mock: false },
+    metadata: { ...metadataBase, model: effectiveModel, mock: false },
     prompt: {
       fullPrompt: built.fullPrompt,
       fixedStyleInstructions: built.fixedStyleInstructions,
