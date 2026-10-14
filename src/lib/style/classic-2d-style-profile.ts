@@ -7,7 +7,7 @@
 
 import { STYLE_VERSION, type StyleVersion } from "./types";
 
-export const CLASSIC_2D_STYLE_PROFILE_VERSION = "1.0.0";
+export const CLASSIC_2D_STYLE_PROFILE_VERSION = "2.0.0";
 
 export interface Classic2DStyleProfile {
   /** Public style lock identifier stored with generated image metadata. */
@@ -41,6 +41,11 @@ export interface Classic2DStyleProfile {
 /**
  * Permanent master profile. Treat as configuration, not runtime state.
  * Replace the master PNG via admin config — do not fork this aesthetic in code.
+ *
+ * Target look (classic2d-v2): the attached master reference — clean black ink
+ * outlines, hard-edged cel shading, warm semi-realistic cartoon proportions,
+ * shape-based hair/beard, simplified robe folds, and energy-sword glow that
+ * stays inside a classic Western 2D feature / TV animation language.
  */
 export const Classic2DStyleProfile: Classic2DStyleProfile = {
   styleVersion: STYLE_VERSION,
@@ -48,8 +53,6 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
   name: "Classic Hand-Drawn 2D Feature Film",
   masterReferenceFilename: "classic-2d-master.png",
   modelConfig: {
-    // gpt-image-1.5 supports multi-image edits + input_fidelity for faces.
-    // gpt-image-2 also works for edits; fidelity is built-in (no input_fidelity).
     model: "gpt-image-1.5",
     quality: "high",
     inputFidelity: "high",
@@ -57,31 +60,32 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
     outputFormat: "png",
   },
   fixedStyleInstructions: [
-    "ARTISTIC STYLE (LOCKED — classic2d-v1):",
-    "Render in a classic hand-drawn 2D animated feature-film aesthetic.",
-    "Use clean, expressive ink outlines with consistent line thickness throughout.",
-    "Apply traditional cel shading with exactly two or three tonal values per surface.",
-    "Use warm, appealing character proportions suitable for Western animated features.",
-    "Allow slightly exaggerated facial expressions while keeping features simplified and recognizable.",
-    "Illustrate hair and facial hair with clear hand-drawn strokes, not photo textures.",
-    "Use rich, consistent flat colors with smooth, simplified clothing folds.",
-    "Match the linework, coloring, shading language, and proportions of Image 2 (master style reference).",
-    "The overall look must feel like an original classic Western animation production.",
-    "Every generated character must share the same artistic treatment so characters appear to belong in the same animated film.",
+    "ARTISTIC STYLE (LOCKED — classic2d-v2):",
+    "Render in a classic hand-drawn 2D animated feature-film / premium Western TV-animation aesthetic.",
+    "Match Image 2 (classic-2d-master.png) exactly for artistic treatment: linework, cel shading, color richness, facial simplification, hair rendering, fabric folds, and overall polish.",
+    "LINEWORK: Clean, confident black ink outlines with consistent line thickness — crisp and professional, not sketchy, scratchy, or painterly.",
+    "SHADING: Traditional hard-edged cel shading with two or three distinct tonal values per surface (base, shadow, optional highlight). Shadow shapes should be deliberate graphic blocks, not soft airbrushed gradients (energy-sword glow is the only soft exception).",
+    "PROPORTIONS: Warm, appealing, semi-realistic cartoon proportions — slightly larger expressive head, grounded heroic body — like a high-end Western animated continuum character.",
+    "FACE: Simplified but recognizable features; large clear eyes with catchlights; slightly exaggerated friendly or heroic expression; glasses, if present in the identity photo, as clean graphic shapes.",
+    "HAIR / FACIAL HAIR: Hand-illustrated as distinct silhouette shapes with a few internal contour lines for volume — never photo texture or strand-by-strand realism.",
+    "CLOTHING: Smooth, simplified folds as logical clean lines and large shadow blocks that read weight and motion (layered tunic/robe language as in the master rendering style).",
+    "COLOR: Rich, saturated, consistent flat colors with clear separation between materials.",
+    "ENERGY SWORD: Fully visible tip and hilt; bright glowing blade with a luminous core; subtle colored rim light on nearby face/hand/cloth while remaining 2D cel art.",
+    "Every generated character must look like it belongs in the same animated production as Image 2.",
   ].join("\n"),
   identityAndReferenceRules: [
     "IMAGE ROLES:",
-    "Image 1 is the uploaded photograph that defines the character's IDENTITY only (face shape, age cues, hair color/style cues, skin tone cues, distinctive features).",
-    "Image 2 is the permanent master style reference (classic-2d-master.png). Use it ONLY for artistic treatment: outlines, cel shading, proportions language, color richness, and clothing fold simplification.",
-    "CRITICAL: Do NOT transfer the identity, facial features, hair, body type, clothing, or likeness of the person shown in Image 2 onto the subject.",
+    "Image 1 is the uploaded photograph that defines the character's IDENTITY only (face shape, age cues, hair color/style cues, skin tone cues, glasses if worn, distinctive features).",
+    "Image 2 is the permanent master style reference (classic-2d-master.png). Use it ONLY for artistic treatment: outlines, cel shading, proportions language, color richness, hair/beard drawing language, and clothing-fold simplification.",
+    "CRITICAL: Do NOT transfer the identity, facial features, hairline, beard pattern, glasses design, body type, clothing, or likeness of the person shown in Image 2 onto the subject.",
     "Preserve Image 1's recognizable identity while fully redrawing them as a classic 2D cartoon character in Image 2's artistic style.",
   ].join("\n"),
   avoidInstructions: [
     "AVOID:",
     "3D or CGI rendering, photorealistic faces or skin textures,",
     "anime-style rendering, comic-book halftone effects,",
-    "hyperrealistic fabric or lighting,",
-    "and any dramatic change in illustration style away from classic2d-v1.",
+    "hyperrealistic fabric or lighting, soft painterly brushwork,",
+    "and any dramatic change in illustration style away from classic2d-v2.",
   ].join(" "),
 };
 

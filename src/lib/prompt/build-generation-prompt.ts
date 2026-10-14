@@ -81,7 +81,7 @@ export function buildVariableCharacterInstructions(
     `Energy sword: ${SWORD_DESIGN_COPY[c.swordDesign]} with a ${SWORD_COLOR_COPY[c.swordColor]}, ${SWORD_POSITION_COPY[c.swordPosition]}.`,
     "Always show the complete energy sword, including the tip and the hilt — never crop the blade.",
     `Background: ${BACKGROUND_COPY[c.background]}.`,
-    "Clothing may be a simple heroic adventurer outfit adapted into clean cel-shaded cartoon forms.",
+    "Clothing: layered galactic adventurer / Jedi-inspired robes rendered with the same clean cel-shaded fold language as Image 2, adapted to the subject — do not copy Image 2's exact costume details or identity.",
     "Do not invent a different animation aesthetic; only vary the character attributes listed above.",
   ].join("\n");
 }

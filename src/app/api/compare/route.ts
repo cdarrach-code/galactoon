@@ -17,7 +17,7 @@ function assertDeveloperAccess(request: NextRequest): NextResponse | null {
 
 /**
  * Developer-only comparison mode: generate multiple characters with the
- * same locked classic2d-v1 profile to inspect style consistency.
+ * same locked classic2d-v2 profile to inspect style consistency.
  */
 export async function POST(request: NextRequest) {
   const denied = assertDeveloperAccess(request);
