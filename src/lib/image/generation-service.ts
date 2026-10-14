@@ -64,6 +64,36 @@ function normalizeImageMime(
   return "image/jpeg";
 }
 
+function mapGenerationError(err: unknown): Error {
+  const message = err instanceof Error ? err.message : String(err);
+  const lower = message.toLowerCase();
+  if (
+    lower.includes("credit") ||
+    lower.includes("quota") ||
+    lower.includes("billing")
+  ) {
+    return new Error(
+      "OpenAI has no credits remaining. Add billing credits, then try again.",
+    );
+  }
+  if (lower.includes("timeout") || lower.includes("timed out")) {
+    return new Error(
+      "Generation timed out on the host. Please try again in a moment.",
+    );
+  }
+  if (
+    lower.includes("safety") ||
+    lower.includes("moderation") ||
+    lower.includes("rejected") ||
+    lower.includes("policy")
+  ) {
+    return new Error(
+      "That request was blocked by the image safety system. Try a different photo or settings.",
+    );
+  }
+  return err instanceof Error ? err : new Error(message);
+}
+
 function mockCartoonPng(label: string): string {
   // Minimal valid 1x1 PNG — UI shows a styled placeholder panel when mock.
   // Real generations return gpt-image output; mock keeps the app runnable offline.
@@ -167,48 +197,57 @@ export async function generateCharacter(
   const outputFormat = wantsTransparent
     ? "png"
     : Classic2DStyleProfile.modelConfig.outputFormat;
+
+  const editOptions = {
+    model,
+    prompt: built.fullPrompt,
+    ...(supportsInputFidelity
+      ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
+      : {}),
+    quality: Classic2DStyleProfile.modelConfig.quality,
+    size: Classic2DStyleProfile.modelConfig.size,
+    background: wantsTransparent
+      ? ("transparent" as const)
+      : ("opaque" as const),
+    output_format: outputFormat,
+  };
+
   let result;
   try {
     result = await client.images.edit({
-      model,
+      ...editOptions,
       image: [identityFile, styleFile],
-      prompt: built.fullPrompt,
-      ...(supportsInputFidelity
-        ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
-        : {}),
-      quality: Classic2DStyleProfile.modelConfig.quality,
-      size: Classic2DStyleProfile.modelConfig.size,
-      background: wantsTransparent ? "transparent" : "opaque",
-      output_format: outputFormat,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     const lower = message.toLowerCase();
-    if (
-      lower.includes("credit") ||
-      lower.includes("quota") ||
-      lower.includes("billing")
-    ) {
-      throw new Error(
-        "OpenAI has no credits remaining. Add billing credits, then try again.",
-      );
-    }
-    if (lower.includes("timeout") || lower.includes("timed out")) {
-      throw new Error(
-        "Generation timed out on the host. Please try again in a moment.",
-      );
-    }
-    if (
+    const isSafety =
       lower.includes("safety") ||
       lower.includes("moderation") ||
       lower.includes("rejected") ||
-      lower.includes("policy")
-    ) {
-      throw new Error(
-        "That request was blocked by the image safety system. Try a different photo or settings.",
+      lower.includes("policy");
+
+    // If the style reference triggers safety, retry with identity photo only.
+    if (isSafety) {
+      console.warn(
+        "[generate] Safety rejection with style reference; retrying identity-only.",
       );
+      try {
+        const identityOnlyPrompt = [
+          built.fullPrompt,
+          "Image 2 is unavailable. Still apply the locked classic 2D cloak-and-plasma-sword costume direction from the written instructions.",
+        ].join("\n\n");
+        result = await client.images.edit({
+          ...editOptions,
+          prompt: identityOnlyPrompt,
+          image: [identityFile],
+        });
+      } catch (retryErr) {
+        throw mapGenerationError(retryErr);
+      }
+    } else {
+      throw mapGenerationError(err);
     }
-    throw err;
   }
 
   const imageBase64 = result.data?.[0]?.b64_json;

@@ -11,7 +11,7 @@ import {
 } from "@/lib/style/types";
 
 const SWORD_COLOR_COPY: Record<CharacterCustomization["swordColor"], string> = {
-  blue: "bright blue glowing plasma sword blade like Image 2",
+  blue: "bright blue glowing plasma sword blade",
   green: "vivid green glowing plasma sword blade",
   purple: "rich purple glowing plasma sword blade",
   red: "intense red glowing plasma sword blade",
@@ -24,13 +24,13 @@ const SWORD_DESIGN_COPY: Record<
   string
 > = {
   standard:
-    "a single plasma sword with a compact cylindrical metal hilt and luminous blade core matching Image 2's weapon treatment",
+    "a single plasma sword with a faceted hexagonal metal hilt, emitter fins, and luminous blade core like Image 2",
   double:
     "a double-ended plasma staff with glowing blades on both ends and a central grip, same glow language as Image 2",
   crossguard:
-    "a plasma sword with short luminous side emitters on a cylindrical hilt, same glow language as Image 2",
+    "a plasma sword with short luminous side emitters on a hexagonal hilt, same glow language as Image 2",
   curved:
-    "a curved plasma sword with a sweeping glowing blade and cylindrical hilt, same glow language as Image 2",
+    "a curved plasma sword with a sweeping glowing blade and hexagonal hilt, same glow language as Image 2",
 };
 
 const SWORD_POSITION_COPY: Record<
@@ -82,15 +82,15 @@ export function buildVariableCharacterInstructions(
   return [
     "CHARACTER DIRECTION (VARIABLE):",
     "Redraw the person from Image 1 as an ORIGINAL fictional classic 2D animated space hero with slightly more realistic adult proportions while staying hand-drawn 2D.",
-    "Match Image 2's costume and plasma-sword look closely (hooded cloak, layered tunic, belt, boots, glowing cylindrical-hilt plasma sword), but keep Image 1's face/identity.",
+    "Give them a dramatic hooded cloak and glowing plasma sword in the same costume language as Image 2, while keeping Image 1's face/identity.",
     `Facial expression: ${EXPRESSION_COPY[c.expression]}.`,
     `Stance: ${STANCE_COPY[c.stance]}.`,
     `Framing: ${FRAMING_COPY[c.framing]}.`,
     `Plasma sword: ${SWORD_DESIGN_COPY[c.swordDesign]} with a ${SWORD_COLOR_COPY[c.swordColor]}, ${SWORD_POSITION_COPY[c.swordPosition]}.`,
-    "HARD REQUIREMENT: Show the complete plasma sword — glowing tip, full blade length, and cylindrical hilt — fully visible with margin from the edges. Do not crop the weapon.",
+    "HARD REQUIREMENT: Show the complete plasma sword — glowing tip, full blade length, and hexagonal hilt — fully visible with margin from the edges. Do not crop the weapon.",
     "Compose the hand pose so the full sword fits entirely within the three-quarter portrait canvas.",
     `Background: ${BACKGROUND_COPY[c.background]}.`,
-    "Clothing: hooded dark-brown cloak with wide sleeves over a cream/tan layered tunic, utility belt, dark trousers, and tall brown boots — same cloak-and-sword silhouette as Image 2, fitted to Image 1's body.",
+    "Clothing: deep indigo hooded cloak with copper trim and wide sleeves over a sand layered tunic, utility belt, dark trousers, and tall boots — cloak-and-plasma-sword silhouette like Image 2, fitted to Image 1's body.",
     "Do not invent a different animation aesthetic; only vary the character attributes listed above.",
   ].join("\n");
 }

@@ -35,8 +35,9 @@ describe("Classic2DStyleProfile", () => {
     expect(fixed).toMatch(/ORIGINAL fictional/i);
     expect(fixed).toMatch(/hooded cloak/i);
     expect(fixed).toMatch(/plasma sword/i);
+    expect(fixed).toMatch(/hexagonal/i);
     expect(fixed).toMatch(/Image 2/);
-    expect(fixed).toMatch(/Do NOT transfer the identity/i);
+    expect(fixed).toMatch(/Do NOT copy the face/i);
     expect(fixed).toMatch(/Avoid:/i);
     expect(fixed).toMatch(/anime/i);
     expect(fixed).toMatch(/3D or CGI/i);
