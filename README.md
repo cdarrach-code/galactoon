@@ -2,7 +2,7 @@
 
 Turn a photograph into a **classic hand-drawn 2D** galactic cartoon character.
 
-The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customize expression, stance, energy sword, and background — never the illustration style. Costume is locked to brown and tan hooded robes. Generations use `gpt-image-1.5` with high input fidelity so the face matches the uploaded photo.
+The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customize expression, stance, energy sword, and background — never the illustration style. Costume is locked to brown and tan hooded robes. Generations use `gpt-image-2` with identity-first prompting so kids and adults keep a recognizable face and age.
 
 ## Features
 
@@ -66,7 +66,7 @@ VARIABLE CHARACTER INSTRUCTIONS  (sword, stance, expression, …)
 Image 1: user photograph (identity)
 Image 2: classic-2d-master.png (linework / cel shading / proportions)
         →
-OpenAI Images Edit (gpt-image-1.5, input_fidelity=high)
+OpenAI Images Edit (gpt-image-2, identity-first)
 ```
 
 Changing a user setting only rewrites the variable block. Automated tests assert the fixed block is always present and cannot be overridden.

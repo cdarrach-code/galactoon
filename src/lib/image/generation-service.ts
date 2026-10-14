@@ -3,6 +3,7 @@ import OpenAI, { toFile } from "openai";
 import { Classic2DStyleProfile } from "@/lib/style/classic-2d-style-profile";
 import {
   buildGenerationPrompt,
+  buildIdentityFirstPrompt,
   buildSafetyFallbackPrompt,
   enforceStyleLock,
   normalizeCustomization,
@@ -100,7 +101,7 @@ function mapGenerationError(err: unknown): Error {
   }
   if (isSafetyError(err)) {
     return new Error(
-      "That photo was blocked by the image safety filter. Try a clear selfie of your own face — one adult, well lit, no sunglasses covering the face — then generate again.",
+      "That photo was blocked by the image safety filter. Try a clear, well-lit face photo of one person (no sunglasses covering the eyes), then generate again.",
     );
   }
   return err instanceof Error ? err : new Error(message);
@@ -142,13 +143,12 @@ function escapeXml(value: string): string {
 /**
  * Generates a classic-2D cartoon character from a user photo + locked style profile.
  *
- * Uses OpenAI Images Edit with:
- *   Image 1 = user photograph (identity) — first for facial fidelity
- *   Image 2 = classic-2d-master.png (costume + style reference)
+ * Uses OpenAI Images Edit with gpt-image-2 (high face fidelity by default):
+ *   Primary: identity photo ONLY + identity-first prompt (best likeness for kids/adults)
+ *   Retry: identity photo + faceless costume board if needed, then soft safety prompt
  *
- * Safety ladder (max 2 attempts — fits Netlify 60s when first succeeds):
- *   1) identity + style reference + full prompt
- *   2) identity only + safety fallback prompt
+ * Image 1 is always the identity photo. Style boards are faceless so they cannot
+ * overwrite a child's (or anyone's) face with a reference character.
  */
 export async function generateCharacter(
   input: GenerateCharacterInput,
@@ -199,20 +199,21 @@ export async function generateCharacter(
     return toFile(input.photoBytes, safeName, { type: safeMime });
   }
 
-  const styleFile = await toFile(master.bytes, master.filename, {
-    type: master.mimeType,
-  });
-
   const wantsTransparent = customization.background === "transparent";
   // JPEG cannot carry transparency — use PNG only when needed.
   const outputFormat = wantsTransparent
     ? "png"
     : Classic2DStyleProfile.modelConfig.outputFormat;
 
+  // gpt-image-2 rejects input_fidelity (always high). Older models need it.
+  const supportsInputFidelity =
+    !model.includes("gpt-image-2") && !model.includes("mini");
+
   const baseOptions = {
     model,
-    // Identity-preserving edits: always request high input fidelity on gpt-image-1.5.
-    input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity,
+    ...(supportsInputFidelity
+      ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
+      : {}),
     quality: Classic2DStyleProfile.modelConfig.quality,
     size: Classic2DStyleProfile.modelConfig.size,
     background: wantsTransparent
@@ -221,21 +222,19 @@ export async function generateCharacter(
     output_format: outputFormat,
   };
 
-  // Cap at 2 attempts so a safety retry still fits Netlify's ~60s function budget.
+  // Identity-only maximizes face/age likeness (critical for kids/teens).
+  // Soft safety fallback second. Costume comes from the written prompt.
   const attempts: Array<{
     label: string;
     prompt: string;
-    withStyle: boolean;
   }> = [
     {
-      label: "identity+style",
-      prompt: built.fullPrompt,
-      withStyle: true,
+      label: "identity-first",
+      prompt: buildIdentityFirstPrompt(customization, Classic2DStyleProfile),
     },
     {
       label: "identity-only-safety",
       prompt: buildSafetyFallbackPrompt(customization, Classic2DStyleProfile),
-      withStyle: false,
     },
   ];
 
@@ -245,15 +244,11 @@ export async function generateCharacter(
   for (let i = 0; i < attempts.length; i++) {
     const attempt = attempts[i];
     try {
-      // Identity first (richest facial fidelity), style reference second.
       const identityFile = await makeIdentityFile();
-      const images = attempt.withStyle
-        ? [identityFile, styleFile]
-        : [identityFile];
       result = await client.images.edit({
         ...baseOptions,
         prompt: attempt.prompt,
-        image: images,
+        image: [identityFile],
       });
       if (i > 0) {
         console.warn(`[generate] Succeeded on retry: ${attempt.label}`);
@@ -263,7 +258,7 @@ export async function generateCharacter(
       lastErr = err;
       const canRetry = isSafetyError(err) && i < attempts.length - 1;
       console.warn(
-        `[generate] Attempt ${attempt.label} failed${canRetry ? "; retrying identity-only safety fallback" : ""}:`,
+        `[generate] Attempt ${attempt.label} failed${canRetry ? "; retrying" : ""}:`,
         err instanceof Error ? err.message : err,
       );
       if (!canRetry) {

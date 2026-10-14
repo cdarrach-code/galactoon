@@ -19,9 +19,9 @@ import {
 describe("Classic2DStyleProfile", () => {
   it("exposes a permanent classic2d-v2.1 lock", () => {
     expect(Classic2DStyleProfile.styleVersion).toBe("classic2d-v2.1");
-    expect(Classic2DStyleProfile.modelConfig.model).toBe("gpt-image-1.5");
+    expect(Classic2DStyleProfile.modelConfig.model).toBe("gpt-image-2");
     expect(Classic2DStyleProfile.modelConfig.inputFidelity).toBe("high");
-    expect(Classic2DStyleProfile.profileVersion).toBe("3.0.0");
+    expect(Classic2DStyleProfile.profileVersion).toBe("3.1.0");
   });
 
   it("contains the locked classic 2D aesthetic requirements", () => {
@@ -33,6 +33,7 @@ describe("Classic2DStyleProfile", () => {
     expect(fixed).toMatch(/energy sword/i);
     expect(fixed).toMatch(/no 3D/i);
     expect(fixed).toMatch(/no photorealism/i);
+    expect(fixed).toMatch(/exact age|same age|child or teen/i);
     expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber/i);
   });
 });

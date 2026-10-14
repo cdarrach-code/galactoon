@@ -7,7 +7,7 @@
 
 import { STYLE_VERSION, type StyleVersion } from "./types";
 
-export const CLASSIC_2D_STYLE_PROFILE_VERSION = "3.0.0";
+export const CLASSIC_2D_STYLE_PROFILE_VERSION = "3.1.0";
 
 export interface Classic2DStyleProfile {
   styleVersion: StyleVersion;
@@ -32,27 +32,29 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
   name: "Classic Hand-Drawn 2D Feature Film",
   masterReferenceFilename: "classic-2d-master.png",
   modelConfig: {
-    model: "gpt-image-1.5",
+    // gpt-image-2 always processes image inputs at high fidelity (best face match).
+    // quality medium keeps generations under Netlify's ~60s function budget.
+    model: "gpt-image-2",
     quality: "medium",
     inputFidelity: "high",
     size: "1024x1536",
     outputFormat: "jpeg",
   },
   fixedStyleInstructions: [
-    "Create a clean, high-quality classic 2D hand-drawn animation style illustration of the person in Image 1 as an original heroic galactic warrior.",
+    "Create a clean, high-quality classic 2D hand-drawn animation style illustration of the person in Image 1 as an original heroic galactic hero.",
     "",
     "Style requirements:",
     "- classic 2D animation aesthetic",
     "- clean dark ink outlines",
     "- traditional cel shading",
-    "- expressive cartoon features",
+    "- expressive cartoon features that still look like THIS person",
     "- polished feature-animation quality",
     "- no 3D",
     "- no photorealism",
     "",
     "Character design (locked costume):",
-    "- brown and tan hooded robes",
-    "- original heroic galactic warrior look — not any existing copyrighted character",
+    "- brown and tan hooded robes sized to Image 1's body and age",
+    "- original heroic galactic hero look — not any existing copyrighted character",
     "",
     "Composition requirements:",
     "- always show the complete energy sword from hilt to tip",
@@ -61,21 +63,25 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
     "- three-quarter framing with the full energy sword inside the frame",
     "",
     "Output:",
-    "A polished classic 2D animated illustration with a consistent hand-drawn look.",
+    "A polished classic 2D animated illustration with a consistent hand-drawn look that is immediately recognizable as the person in Image 1.",
   ].join("\n"),
   identityAndReferenceRules: [
-    "IDENTITY (HIGHEST PRIORITY):",
-    "Use Image 1 (the uploaded photo) only for identity reference.",
-    "Preserve the person's recognizable facial features, hairstyle, facial hair, glasses if present, and overall appearance.",
-    "Make the character clearly look like the person in the photo, but not like any existing copyrighted character.",
-    "Match face shape, eyes, eyebrows, nose, mouth, jawline, hair color/style/length, skin tone, and age cues from Image 1.",
+    "IDENTITY (HIGHEST PRIORITY — HARD LOCK):",
+    "Use Image 1 (the uploaded photo) as the ONLY identity source.",
+    "The finished cartoon MUST clearly look like the same person as Image 1 — a stranger should recognize them.",
+    "Preserve exact age appearance from Image 1. If Image 1 is a child or teen, keep them that same age — do NOT age them up into an adult.",
+    "Preserve gender presentation from Image 1.",
+    "Preserve face shape, eye shape/spacing/color cues, eyebrows, nose, mouth, lips, cheeks, jawline, chin, freckles/moles if visible, skin tone, and hair color/style/length/part from Image 1.",
+    "Preserve glasses, facial hair, or other distinctive features if present in Image 1.",
+    "Keep child/teen head-to-body proportions when Image 1 shows a child or teen (do not force adult warrior proportions).",
+    "Stylize into classic 2D animation WITHOUT replacing their face with a generic cartoon face.",
     "",
     "IMAGE ROLES:",
-    "Image 1 = identity only.",
-    "If Image 2 is provided, use it only for classic 2D art treatment and costume silhouette cues (brown/tan hooded robes, energy-sword glow language). Do NOT copy Image 2's face.",
+    "Image 1 = identity only (face + age + hair + skin tone).",
+    "If Image 2 is provided, it is a FACELESS costume/style board only (brown/tan robes, energy-sword glow, cel shading). Never copy any face from Image 2 — Image 2 has no identity to use.",
   ].join("\n"),
   avoidInstructions:
-    "AVOID: franchise names or logos, copying any face other than Image 1, 3D, photorealism, anime rendering, comic halftone, cropped energy swords, real firearms, and leaving the classic 2D hand-drawn look.",
+    "AVOID: generic cartoon faces, aging a child/teen into an adult, adultifying proportions when Image 1 is young, copying any face other than Image 1, franchise names or logos, 3D, photorealism, anime rendering, comic halftone, cropped energy swords, real firearms, and leaving the classic 2D hand-drawn look.",
 };
 
 export function getFixedStyleInstructions(

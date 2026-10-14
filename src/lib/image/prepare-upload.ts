@@ -139,7 +139,7 @@ export function friendlyGenerateError(
     combined.includes("moderation") ||
     combined.includes("policy")
   ) {
-    return "That photo was blocked by the image safety filter. Try a clear selfie of your own face — one adult, well lit, no sunglasses covering the face — then generate again.";
+    return "That photo was blocked by the image safety filter. Try a clear, well-lit face photo of one person (no sunglasses covering the eyes), then generate again.";
   }
   if (payload?.details) return payload.details;
   if (payload?.error) return payload.error;
