@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Camera, Upload, X } from "lucide-react";
+import { Camera, ImageUp, X } from "lucide-react";
 
 interface PhotoUploadProps {
   file: File | null;
@@ -17,7 +17,8 @@ export function PhotoUpload({
   onChange,
   disabled,
 }: PhotoUploadProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
 
   function acceptFile(next: File | null) {
@@ -38,20 +39,17 @@ export function PhotoUpload({
           Your photo
         </h2>
         <p className="text-sm text-[color:var(--muted-copy)]">
-          Take a selfie or choose a clear face photo.
+          Take a selfie or upload a photo from your library.
         </p>
       </div>
 
-      <button
-        type="button"
-        disabled={disabled}
+      <div
         className={[
           "upload-zone relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed transition-colors",
           dragOver
             ? "border-[color:var(--plasma)] bg-[color:var(--plasma)]/10"
             : "border-[color:var(--ink-soft)]/25 bg-[color:var(--void)]/45",
         ].join(" ")}
-        onClick={() => inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -76,51 +74,76 @@ export function PhotoUpload({
               <Camera className="h-7 w-7" />
             </div>
             <p className="font-[family-name:var(--font-display)] text-[color:var(--ink)]">
-              Tap to upload a photo
+              Add your photo
             </p>
             <p className="max-w-[16rem] text-xs text-[color:var(--muted-copy)] sm:text-sm">
-              Works best with a front-facing portrait.
+              Use the camera for a selfie, or choose an existing image.
             </p>
           </div>
         )}
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          capture="user"
-          className="sr-only"
-          disabled={disabled}
-          onChange={(e) => acceptFile(e.target.files?.[0] ?? null)}
-        />
-      </button>
+      </div>
 
-      <div className="flex gap-2">
+      {/* Camera: forces selfie capture on supporting mobile browsers */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="user"
+        className="sr-only"
+        disabled={disabled}
+        onChange={(e) => {
+          acceptFile(e.target.files?.[0] ?? null);
+          e.target.value = "";
+        }}
+      />
+      {/* Gallery/upload: no capture attribute so the library picker opens */}
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        disabled={disabled}
+        onChange={(e) => {
+          acceptFile(e.target.files?.[0] ?? null);
+          e.target.value = "";
+        }}
+      />
+
+      <div className="grid grid-cols-2 gap-2">
         <Button
           type="button"
           variant="secondary"
-          className="min-h-11 flex-1"
+          className="min-h-12"
           disabled={disabled}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => cameraInputRef.current?.click()}
         >
-          <Upload className="mr-2 h-4 w-4" />
-          {file ? "Replace" : "Choose photo"}
+          <Camera className="mr-2 h-4 w-4" />
+          Take selfie
         </Button>
-        {file ? (
-          <Button
-            type="button"
-            variant="ghost"
-            className="min-h-11"
-            disabled={disabled}
-            onClick={() => {
-              if (inputRef.current) inputRef.current.value = "";
-              onChange(null);
-            }}
-          >
-            <X className="mr-1 h-4 w-4" />
-            Clear
-          </Button>
-        ) : null}
+        <Button
+          type="button"
+          variant="secondary"
+          className="min-h-12"
+          disabled={disabled}
+          onClick={() => galleryInputRef.current?.click()}
+        >
+          <ImageUp className="mr-2 h-4 w-4" />
+          Upload photo
+        </Button>
       </div>
+
+      {file ? (
+        <Button
+          type="button"
+          variant="ghost"
+          className="min-h-11 w-full"
+          disabled={disabled}
+          onClick={() => onChange(null)}
+        >
+          <X className="mr-1 h-4 w-4" />
+          Clear photo
+        </Button>
+      ) : null}
     </div>
   );
 }
