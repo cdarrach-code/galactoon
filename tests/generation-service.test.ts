@@ -33,7 +33,7 @@ describe("generateCharacter", () => {
       forceMock: true,
     });
 
-    expect(result.metadata.styleVersion).toBe("classic2d-v2");
+    expect(result.metadata.styleVersion).toBe("classic2d-v2.1");
     expect(result.metadata.styleProfileVersion).toBe(
       Classic2DStyleProfile.profileVersion,
     );

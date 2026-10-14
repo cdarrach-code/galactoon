@@ -17,8 +17,8 @@ import {
 } from "@/lib/style/types";
 
 describe("Classic2DStyleProfile", () => {
-  it("exposes a permanent classic2d-v2 lock", () => {
-    expect(Classic2DStyleProfile.styleVersion).toBe("classic2d-v2");
+  it("exposes a permanent classic2d-v2.1 lock", () => {
+    expect(Classic2DStyleProfile.styleVersion).toBe("classic2d-v2.1");
     expect(Classic2DStyleProfile.styleVersion).toBe(STYLE_VERSION);
     expect(Classic2DStyleProfile.masterReferenceFilename).toBe(
       "classic-2d-master.png",
@@ -31,12 +31,14 @@ describe("Classic2DStyleProfile", () => {
     expect(fixed).toMatch(/cel shading/i);
     expect(fixed).toMatch(/consistent line thickness/i);
     expect(fixed).toMatch(/hard-edged/i);
+    expect(fixed).toMatch(/slightly more realistic/i);
+    expect(fixed).toMatch(/complete energy sword/i);
     expect(fixed).toMatch(/Image 2/);
     expect(fixed).toMatch(/Do NOT transfer the identity/i);
     expect(fixed).toMatch(/Avoid:/i);
     expect(fixed).toMatch(/anime/i);
     expect(fixed).toMatch(/3D or CGI/i);
-    expect(fixed).toMatch(/classic2d-v2/);
+    expect(fixed).toMatch(/classic2d-v2\.1/);
   });
 });
 
@@ -83,7 +85,7 @@ describe("buildGenerationPrompt style lock", () => {
       b.variableCharacterInstructions,
     );
     expect(b.variableCharacterInstructions).toMatch(/green/i);
-    expect(b.variableCharacterInstructions).not.toMatch(/classic2d-v2/);
+    expect(b.variableCharacterInstructions).not.toMatch(/classic2d-v2\.1/);
   });
 
   it("never lets variable instructions rewrite fixed style text", () => {

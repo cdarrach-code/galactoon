@@ -25,6 +25,9 @@ export function StudioApp() {
   const [metadata, setMetadata] = useState<GeneratedImageMetadata | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [approving, setApproving] = useState(false);
+  const [approved, setApproved] = useState(false);
+  const [approveMessage, setApproveMessage] = useState<string | null>(null);
 
   const previewUrl = useMemo(() => {
     if (!file) return null;
@@ -37,7 +40,7 @@ export function StudioApp() {
     };
   }, [previewUrl]);
 
-  function handleGenerate() {
+  function runGenerate() {
     if (!file) {
       setError("Upload a photo first.");
       return;
@@ -45,6 +48,8 @@ export function StudioApp() {
 
     startTransition(async () => {
       setError(null);
+      setApproved(false);
+      setApproveMessage(null);
       try {
         const prepared = await preparePhotoForUpload(file);
         const form = new FormData();
@@ -86,6 +91,46 @@ export function StudioApp() {
     });
   }
 
+  async function handleApprove() {
+    if (!imageUrl) return;
+    setApproving(true);
+    setApproveMessage(null);
+    try {
+      const response = await fetch("/api/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image: imageUrl,
+          metadata,
+        }),
+      });
+      const payload = await readJsonSafe<{
+        ok?: boolean;
+        emailedTo?: string;
+        error?: string;
+        details?: string;
+        provider?: string;
+      }>(response);
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(
+          payload?.details || payload?.error || "Could not send approval email.",
+        );
+      }
+
+      setApproved(true);
+      setApproveMessage(
+        `Final design emailed to ${payload.emailedTo || "cdarrach@gmail.com"}.`,
+      );
+    } catch (err) {
+      setApproveMessage(
+        err instanceof Error ? err.message : "Could not send approval email.",
+      );
+    } finally {
+      setApproving(false);
+    }
+  }
+
   return (
     <div className="studio-shell relative overflow-x-hidden">
       <div className="nebula-layer pointer-events-none absolute inset-0" aria-hidden />
@@ -122,22 +167,30 @@ export function StudioApp() {
           <PhotoUpload
             file={file}
             previewUrl={previewUrl}
-            onChange={setFile}
-            disabled={pending}
+            onChange={(next) => {
+              setFile(next);
+              setApproved(false);
+              setApproveMessage(null);
+            }}
+            disabled={pending || approving}
           />
           <CustomizationPanel
             value={customization}
-            onChange={setCustomization}
-            disabled={pending}
+            onChange={(next) => {
+              setCustomization(next);
+              setApproved(false);
+              setApproveMessage(null);
+            }}
+            disabled={pending || approving}
           />
           <Button
             type="button"
             size="lg"
             className="generate-btn h-12 w-full text-base"
-            disabled={pending || !file}
-            onClick={handleGenerate}
+            disabled={pending || approving || !file}
+            onClick={runGenerate}
           >
-            {pending ? "Generating…" : "Generate character"}
+            {pending ? "Generating…" : imageUrl ? "Generate again" : "Generate character"}
           </Button>
         </section>
 
@@ -147,6 +200,12 @@ export function StudioApp() {
             metadata={metadata}
             loading={pending}
             error={error}
+            approving={approving}
+            approved={approved}
+            approveMessage={approveMessage}
+            canRegenerate={Boolean(file)}
+            onRegenerate={runGenerate}
+            onApprove={handleApprove}
           />
         </section>
       </main>

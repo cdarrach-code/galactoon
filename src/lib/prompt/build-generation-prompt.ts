@@ -59,7 +59,8 @@ const BACKGROUND_COPY: Record<CharacterCustomization["background"], string> = {
 };
 
 const FRAMING_COPY: Record<CharacterCustomization["framing"], string> = {
-  "three-quarter": "three-quarter framing from mid-thighs upward",
+  "three-quarter":
+    "three-quarter framing from mid-thighs upward, with enough headroom and side room that the complete energy sword (tip through hilt) stays fully inside the frame",
 };
 
 /**
@@ -73,12 +74,13 @@ export function buildVariableCharacterInstructions(
 
   return [
     "CHARACTER DIRECTION (VARIABLE):",
-    "Redraw the person from Image 1 as an original classic 2D animated character.",
+    "Redraw the person from Image 1 as an original classic 2D animated character with slightly more realistic adult proportions while staying hand-drawn 2D.",
     `Facial expression: ${EXPRESSION_COPY[c.expression]}.`,
     `Stance: ${STANCE_COPY[c.stance]}.`,
     `Framing: ${FRAMING_COPY[c.framing]}.`,
     `Energy sword: ${SWORD_DESIGN_COPY[c.swordDesign]} with a ${SWORD_COLOR_COPY[c.swordColor]}, ${SWORD_POSITION_COPY[c.swordPosition]}.`,
-    "Always show the complete energy sword, including the tip and the hilt — never crop the blade.",
+    "HARD REQUIREMENT: Show the complete energy sword in the final image — glowing tip, full blade length, and hilt all visible with margin from the edges. Do not crop the weapon.",
+    "Compose the hand pose so the sword fits entirely within the three-quarter portrait canvas.",
     `Background: ${BACKGROUND_COPY[c.background]}.`,
     "Clothing: layered galactic adventurer / Jedi-inspired robes rendered with the same clean cel-shaded fold language as Image 2, adapted to the subject — do not copy Image 2's exact costume details or identity.",
     "Do not invent a different animation aesthetic; only vary the character attributes listed above.",

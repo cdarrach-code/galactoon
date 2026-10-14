@@ -3,7 +3,7 @@
  * Animation style is intentionally absent — it is permanently locked.
  */
 
-export const STYLE_VERSION = "classic2d-v2" as const;
+export const STYLE_VERSION = "classic2d-v2.1" as const;
 
 export const SWORD_COLORS = [
   "blue",

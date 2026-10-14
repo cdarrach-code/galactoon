@@ -1,13 +1,21 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { GeneratedImageMetadata } from "@/lib/style/types";
+import { Check, RefreshCw } from "lucide-react";
 
 interface GenerationResultProps {
   imageUrl: string | null;
   metadata: GeneratedImageMetadata | null;
   loading: boolean;
   error: string | null;
+  approving?: boolean;
+  approved?: boolean;
+  approveMessage?: string | null;
+  onRegenerate?: () => void;
+  onApprove?: () => void;
+  canRegenerate?: boolean;
 }
 
 export function GenerationResult({
@@ -15,7 +23,15 @@ export function GenerationResult({
   metadata,
   loading,
   error,
+  approving = false,
+  approved = false,
+  approveMessage = null,
+  onRegenerate,
+  onApprove,
+  canRegenerate = false,
 }: GenerationResultProps) {
+  const hasImage = Boolean(imageUrl) && !loading && !error;
+
   return (
     <div className="space-y-3">
       <h2 className="font-[family-name:var(--font-display)] text-base text-[color:var(--ink)] sm:text-lg">
@@ -53,6 +69,38 @@ export function GenerationResult({
 
       {metadata?.mock ? (
         <Badge variant="secondary">Preview mode</Badge>
+      ) : null}
+
+      {hasImage ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button
+            type="button"
+            variant="secondary"
+            className="min-h-12"
+            disabled={loading || approving || !canRegenerate}
+            onClick={onRegenerate}
+          >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Regenerate
+          </Button>
+          <Button
+            type="button"
+            className="generate-btn min-h-12"
+            disabled={loading || approving || approved}
+            onClick={onApprove}
+          >
+            <Check className="mr-2 h-4 w-4" />
+            {approved
+              ? "Approved"
+              : approving
+                ? "Sending…"
+                : "Approve final design"}
+          </Button>
+        </div>
+      ) : null}
+
+      {approveMessage ? (
+        <p className="text-sm text-[color:var(--muted-copy)]">{approveMessage}</p>
       ) : null}
     </div>
   );

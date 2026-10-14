@@ -2,7 +2,7 @@
 
 Turn a photograph into a **classic hand-drawn 2D** galactic cartoon character.
 
-The animation aesthetic is permanently locked (`classic2d-v2`). Users customize the character (sword, stance, expression, background, framing) — never the illustration style.
+The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customize the character (sword, stance, expression, background) — never the illustration style. Framing is fixed to three-quarter with the full energy sword in frame.
 
 ## Features
 
@@ -11,7 +11,8 @@ The animation aesthetic is permanently locked (`classic2d-v2`). Users customize 
 - **Identity vs style separation** — user photo = identity (Image 1); master reference = artistic treatment only (Image 2)
 - **Admin reference replacement** — replace the master PNG via `/admin` without code changes
 - **Developer comparison mode** — `/compare` generates multiple characters to inspect style consistency
-- **Metadata versioning** — every result stores `styleVersion: classic2d-v2` with the generation
+- **Metadata versioning** — every result stores `styleVersion: classic2d-v2.1` with the generation
+- **Approve & email** — final designs can be emailed to `cdarrach@gmail.com` (Resend if configured, otherwise FormSubmit)
 
 ## Run locally
 
