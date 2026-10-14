@@ -2,7 +2,7 @@
 
 Turn a photograph into a **classic hand-drawn 2D** galactic cartoon character.
 
-The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customize the character (crystal blade, stance, expression, background) — never the illustration style. Framing is fixed to three-quarter with the full hexagonal crystal blade in frame. Costume matches the indigo cloak master reference. Generations use `gpt-image-1.5` with high input fidelity so the face matches the uploaded photo.
+The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customize expression, stance, energy sword, and background — never the illustration style. Costume is locked to brown and tan hooded robes. Generations use `gpt-image-1.5` with high input fidelity so the face matches the uploaded photo.
 
 ## Features
 
