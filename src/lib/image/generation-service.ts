@@ -3,6 +3,7 @@ import OpenAI, { toFile } from "openai";
 import { Classic2DStyleProfile } from "@/lib/style/classic-2d-style-profile";
 import {
   buildGenerationPrompt,
+  buildSafetyFallbackPrompt,
   enforceStyleLock,
   normalizeCustomization,
 } from "@/lib/prompt/build-generation-prompt";
@@ -64,6 +65,17 @@ function normalizeImageMime(
   return "image/jpeg";
 }
 
+function isSafetyError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  const lower = message.toLowerCase();
+  return (
+    lower.includes("safety") ||
+    lower.includes("moderation") ||
+    lower.includes("rejected") ||
+    lower.includes("policy")
+  );
+}
+
 function mapGenerationError(err: unknown): Error {
   const message = err instanceof Error ? err.message : String(err);
   const lower = message.toLowerCase();
@@ -81,14 +93,9 @@ function mapGenerationError(err: unknown): Error {
       "Generation timed out on the host. Please try again in a moment.",
     );
   }
-  if (
-    lower.includes("safety") ||
-    lower.includes("moderation") ||
-    lower.includes("rejected") ||
-    lower.includes("policy")
-  ) {
+  if (isSafetyError(err)) {
     return new Error(
-      "That request was blocked by the image safety system. Try a different photo or settings.",
+      "That photo was blocked by the image safety filter. Try a clear selfie of your own face — one adult, well lit, no sunglasses covering the face — then generate again.",
     );
   }
   return err instanceof Error ? err : new Error(message);
@@ -132,10 +139,12 @@ function escapeXml(value: string): string {
  *
  * Uses OpenAI Images Edit with:
  *   Image 1 = user photograph (identity)
- *   Image 2 = classic-2d-master.png (artistic treatment only)
+ *   Image 2 = classic-2d-master.png (faceless art-direction board)
  *
- * Reference images improve stylistic consistency but do not guarantee
- * pixel-perfect matching across generations.
+ * Safety ladder:
+ *   1) identity + style board + full prompt
+ *   2) identity only + full prompt
+ *   3) identity only + ultra-soft fallback prompt
  */
 export async function generateCharacter(
   input: GenerateCharacterInput,
@@ -182,14 +191,14 @@ export async function generateCharacter(
   );
   const safeMime = normalizeImageMime(input.photoMimeType, safeName);
 
-  const identityFile = await toFile(input.photoBytes, safeName, {
-    type: safeMime,
-  });
+  async function makeIdentityFile() {
+    return toFile(input.photoBytes, safeName, { type: safeMime });
+  }
+
   const styleFile = await toFile(master.bytes, master.filename, {
     type: master.mimeType,
   });
 
-  // Identity first (richest facial fidelity), style reference second.
   // gpt-image-1-mini does not support input_fidelity — omit for that model.
   const supportsInputFidelity = !model.includes("mini");
   const wantsTransparent = customization.background === "transparent";
@@ -198,9 +207,8 @@ export async function generateCharacter(
     ? "png"
     : Classic2DStyleProfile.modelConfig.outputFormat;
 
-  const editOptions = {
+  const baseOptions = {
     model,
-    prompt: built.fullPrompt,
     ...(supportsInputFidelity
       ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
       : {}),
@@ -212,42 +220,65 @@ export async function generateCharacter(
     output_format: outputFormat,
   };
 
-  let result;
-  try {
-    result = await client.images.edit({
-      ...editOptions,
-      image: [identityFile, styleFile],
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    const lower = message.toLowerCase();
-    const isSafety =
-      lower.includes("safety") ||
-      lower.includes("moderation") ||
-      lower.includes("rejected") ||
-      lower.includes("policy");
+  const attempts: Array<{
+    label: string;
+    prompt: string;
+    withStyle: boolean;
+  }> = [
+    {
+      label: "identity+style",
+      prompt: built.fullPrompt,
+      withStyle: true,
+    },
+    {
+      label: "identity-only",
+      prompt: [
+        built.fullPrompt,
+        "Image 2 is unavailable. Follow the written classic 2D cape-and-crystal-blade costume direction.",
+      ].join("\n\n"),
+      withStyle: false,
+    },
+    {
+      label: "safety-fallback",
+      prompt: buildSafetyFallbackPrompt(customization, Classic2DStyleProfile),
+      withStyle: false,
+    },
+  ];
 
-    // If the style reference triggers safety, retry with identity photo only.
-    if (isSafety) {
-      console.warn(
-        "[generate] Safety rejection with style reference; retrying identity-only.",
-      );
-      try {
-        const identityOnlyPrompt = [
-          built.fullPrompt,
-          "Image 2 is unavailable. Still apply the locked classic 2D cloak-and-plasma-sword costume direction from the written instructions.",
-        ].join("\n\n");
-        result = await client.images.edit({
-          ...editOptions,
-          prompt: identityOnlyPrompt,
-          image: [identityFile],
-        });
-      } catch (retryErr) {
-        throw mapGenerationError(retryErr);
+  let result;
+  let lastErr: unknown;
+
+  for (let i = 0; i < attempts.length; i++) {
+    const attempt = attempts[i];
+    try {
+      const identityFile = await makeIdentityFile();
+      const images = attempt.withStyle
+        ? [identityFile, styleFile]
+        : [identityFile];
+      result = await client.images.edit({
+        ...baseOptions,
+        prompt: attempt.prompt,
+        image: images,
+      });
+      if (i > 0) {
+        console.warn(`[generate] Succeeded on retry: ${attempt.label}`);
       }
-    } else {
-      throw mapGenerationError(err);
+      break;
+    } catch (err) {
+      lastErr = err;
+      const canRetry = isSafetyError(err) && i < attempts.length - 1;
+      console.warn(
+        `[generate] Attempt ${attempt.label} failed${canRetry ? "; retrying" : ""}:`,
+        err instanceof Error ? err.message : err,
+      );
+      if (!canRetry) {
+        throw mapGenerationError(err);
+      }
     }
+  }
+
+  if (!result) {
+    throw mapGenerationError(lastErr);
   }
 
   const imageBase64 = result.data?.[0]?.b64_json;

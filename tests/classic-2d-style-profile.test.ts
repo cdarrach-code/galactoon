@@ -33,16 +33,16 @@ describe("Classic2DStyleProfile", () => {
     expect(fixed).toMatch(/hard-edged/i);
     expect(fixed).toMatch(/slightly more realistic/i);
     expect(fixed).toMatch(/ORIGINAL fictional/i);
-    expect(fixed).toMatch(/hooded cloak/i);
-    expect(fixed).toMatch(/plasma sword/i);
+    expect(fixed).toMatch(/hooded travel cape/i);
+    expect(fixed).toMatch(/crystal blade/i);
     expect(fixed).toMatch(/hexagonal/i);
     expect(fixed).toMatch(/Image 2/);
-    expect(fixed).toMatch(/Do NOT copy the face/i);
+    expect(fixed).toMatch(/Do NOT invent or copy/i);
     expect(fixed).toMatch(/Avoid:/i);
     expect(fixed).toMatch(/anime/i);
-    expect(fixed).toMatch(/3D or CGI/i);
+    expect(fixed).toMatch(/3D\/CGI/i);
     expect(fixed).toMatch(/classic2d-v2\.1/);
-    expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber/i);
+    expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber|plasma sword/i);
   });
 });
 
@@ -99,9 +99,9 @@ describe("buildGenerationPrompt style lock", () => {
     });
     expect(variable).not.toContain(getFixedStyleInstructions());
     expect(variable).toMatch(/CHARACTER DIRECTION/);
-    expect(variable).toMatch(/complete plasma sword/i);
-    expect(variable).toMatch(/hooded.*cloak|cloak/i);
-    expect(variable).not.toMatch(/Jedi|Star Wars|lightsaber/i);
+    expect(variable).toMatch(/complete crystal blade/i);
+    expect(variable).toMatch(/hooded travel cape|cape/i);
+    expect(variable).not.toMatch(/Jedi|Star Wars|lightsaber|plasma sword/i);
   });
 
   it("defaults match the product defaults", () => {

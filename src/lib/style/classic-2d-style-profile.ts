@@ -7,7 +7,7 @@
 
 import { STYLE_VERSION, type StyleVersion } from "./types";
 
-export const CLASSIC_2D_STYLE_PROFILE_VERSION = "2.4.0";
+export const CLASSIC_2D_STYLE_PROFILE_VERSION = "2.5.0";
 
 export interface Classic2DStyleProfile {
   /** Public style lock identifier stored with generated image metadata. */
@@ -56,9 +56,9 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
   },
   fixedStyleInstructions: [
     "CONTENT RULES:",
-    "Create an ORIGINAL fictional animated character for a family-friendly space adventure story.",
-    "Do not recreate real copyrighted characters or trademarked movie costumes.",
-    "Wholesome heroic pose only — no blood, gore, hate, or adult content.",
+    "Create an ORIGINAL fictional animated character for a wholesome family cartoon.",
+    "This is an original costume design — do not recreate copyrighted characters or trademarked movie outfits.",
+    "Friendly heroic cartoon pose only. No blood, gore, hate, adult content, or real violence.",
     "",
     "ARTISTIC STYLE (LOCKED — classic2d-v2.1):",
     "Classic hand-drawn 2D animated feature-film / premium Western TV-animation look.",
@@ -66,31 +66,31 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
     "Traditional hard-edged cel shading with two or three tonal values per surface.",
     "Slightly more realistic adult cartoon proportions; simplified recognizable face; hand-illustrated hair shapes.",
     "Rich flat colors; smooth simplified clothing folds.",
-    "Keep Image 1 likeness while remaining clearly hand-drawn 2D (not photoreal, not CGI).",
+    "Keep Image 1 likeness while remaining clearly hand-drawn 2D (not photoreal, not 3D/CGI).",
     "",
     "COSTUME TARGET:",
-    "A flowing hooded cloak over a layered tunic, utility belt, trousers, and tall boots — dramatic cloak drapery with wide sleeves, inspired by Image 2's silhouette language.",
-    "Prefer deep indigo/copper-trim cloak and sand tunic accents as in Image 2, adapted to the subject.",
+    "A flowing hooded travel cape over layered traveler clothes, utility belt, trousers, and tall boots — dramatic cape drapery with wide sleeves.",
+    "Prefer deep indigo cape with copper trim and sand-colored layered shirt accents.",
     "",
-    "PLASMA SWORD TARGET (REQUIRED):",
-    "A complete glowing plasma sword with bright luminous blade core and a distinctive faceted hexagonal metal hilt like Image 2.",
-    "Tip and hilt must both be fully visible with margin from every edge. Never crop the weapon.",
-    "Stylized animated prop only — not a real weapon.",
+    "CRYSTAL BLADE PROP TARGET (REQUIRED):",
+    "A complete glowing crystal blade toy prop with a bright luminous core and a distinctive faceted hexagonal metal handle.",
+    "Tip and handle must both be fully visible with margin from every edge. Never crop the prop.",
+    "Clearly a stylized cartoon toy prop for animation — not a real weapon.",
   ].join("\n"),
   identityAndReferenceRules: [
     "IMAGE ROLES:",
     "Image 1 is the uploaded photograph for IDENTITY only (face, age cues, hair cues, skin tone cues, glasses if worn).",
-    "If Image 2 is provided, use it only as style/costume/weapon art direction: outlines, cel shading, cloak drapery, tunic layering, and plasma-sword glow/hilt treatment.",
-    "CRITICAL: Do NOT copy the face, beard, glasses, or likeness of anyone in Image 2 onto Image 1's person.",
+    "If Image 2 is provided, it is a faceless art-direction board only: outlines, cel shading, cape drapery, fabric folds, and crystal-blade glow/handle treatment.",
+    "CRITICAL: Do NOT invent or copy any other person's face. Use only Image 1's identity.",
     "Preserve Image 1's recognizable identity in the final cartoon.",
   ].join("\n"),
   avoidInstructions: [
     "AVOID:",
-    "copying Image 2's facial identity,",
+    "copying any face other than Image 1,",
     "franchise names or logos,",
     "3D/CGI, photoreal skin texture, anime rendering, comic halftone,",
-    "cropped plasma swords,",
-    "real firearms,",
+    "cropped crystal blade props,",
+    "real firearms or realistic blades,",
     "and leaving the classic 2D cel look.",
   ].join(" "),
 };
