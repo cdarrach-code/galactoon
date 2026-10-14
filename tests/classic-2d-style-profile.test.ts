@@ -103,7 +103,17 @@ describe("buildGenerationPrompt style lock", () => {
     expect(built.variableCharacterInstructions).toMatch(/action/i);
     expect(built.variableCharacterInstructions).toMatch(/friendly/i);
     expect(built.variableCharacterInstructions).toMatch(/transparent/i);
-    expect(built.variableCharacterInstructions).toMatch(/full-body|full body/i);
+    expect(built.variableCharacterInstructions).toMatch(/three-quarter/i);
+    expect(built.variableCharacterInstructions).not.toMatch(/full-body|full body/i);
+  });
+
+  it("always forces three-quarter framing even if full-body is requested", () => {
+    const built = buildGenerationPrompt({
+      // @ts-expect-error intentional legacy override attempt
+      framing: "full-body",
+    });
+    expect(built.variableCharacterInstructions).toMatch(/three-quarter/i);
+    expect(built.variableCharacterInstructions).not.toMatch(/full-body|full body/i);
   });
 });
 

@@ -59,7 +59,6 @@ const BACKGROUND_COPY: Record<CharacterCustomization["background"], string> = {
 };
 
 const FRAMING_COPY: Record<CharacterCustomization["framing"], string> = {
-  "full-body": "full-body framing showing the complete figure head to toe",
   "three-quarter": "three-quarter framing from mid-thighs upward",
 };
 
@@ -92,6 +91,8 @@ export function normalizeCustomization(
   return {
     ...DEFAULT_CUSTOMIZATION,
     ...(partial ?? {}),
+    // Framing is product-locked to three-quarter; never honor full-body.
+    framing: "three-quarter",
   };
 }
 

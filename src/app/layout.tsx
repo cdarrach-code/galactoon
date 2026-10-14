@@ -16,7 +16,12 @@ const syne = Syne({
 export const metadata: Metadata = {
   title: "Galactic Toon Studio",
   description:
-    "Transform photographs into classic hand-drawn 2D galactic cartoon characters with a permanently locked animation style.",
+    "Upload a photo and become a galactic hero — customize your energy sword, stance, and expression.",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

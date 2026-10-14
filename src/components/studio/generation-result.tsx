@@ -18,23 +18,16 @@ export function GenerationResult({
 }: GenerationResultProps) {
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="font-[family-name:var(--font-display)] text-lg text-[color:var(--ink)]">
-          Generated character
-        </h2>
-        {metadata ? (
-          <Badge variant="outline" className="font-mono text-[10px]">
-            {metadata.styleVersion}
-          </Badge>
-        ) : null}
-      </div>
+      <h2 className="font-[family-name:var(--font-display)] text-base text-[color:var(--ink)] sm:text-lg">
+        Your character
+      </h2>
 
-      <div className="relative flex min-h-80 items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--ink-soft)]/15 bg-[color:var(--panel)]/80">
+      <div className="relative flex min-h-72 items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--ink-soft)]/15 bg-[color:var(--void)]/55 sm:min-h-80">
         {loading ? (
           <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-[color:var(--plasma)] border-t-transparent" />
             <p className="text-sm text-[color:var(--muted-copy)]">
-              Drawing in classic 2D cel style…
+              Creating your galactic hero…
             </p>
           </div>
         ) : error ? (
@@ -48,46 +41,18 @@ export function GenerationResult({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl}
-            alt="Generated classic 2D galactic character"
-            className="max-h-[32rem] w-full object-contain"
+            alt="Generated galactic character"
+            className="max-h-[70vh] w-full object-contain"
           />
         ) : (
           <p className="px-6 py-16 text-center text-sm text-[color:var(--muted-copy)]">
-            Your cartoon character will appear here after generation.
+            Your character will show up here.
           </p>
         )}
       </div>
 
-      {metadata ? (
-        <dl className="grid grid-cols-2 gap-2 text-xs text-[color:var(--muted-copy)] sm:grid-cols-3">
-          <div>
-            <dt className="uppercase tracking-wide">Style</dt>
-            <dd className="text-[color:var(--ink)]">{metadata.styleVersion}</dd>
-          </div>
-          <div>
-            <dt className="uppercase tracking-wide">Profile</dt>
-            <dd className="text-[color:var(--ink)]">
-              v{metadata.styleProfileVersion}
-            </dd>
-          </div>
-          <div>
-            <dt className="uppercase tracking-wide">Model</dt>
-            <dd className="truncate text-[color:var(--ink)]">{metadata.model}</dd>
-          </div>
-          <div className="col-span-2 sm:col-span-3">
-            <dt className="uppercase tracking-wide">Reference</dt>
-            <dd className="truncate font-mono text-[color:var(--ink)]">
-              {metadata.masterReferenceId}
-            </dd>
-          </div>
-          {metadata.mock ? (
-            <div className="col-span-2 sm:col-span-3">
-              <Badge variant="secondary">
-                Mock preview — set OPENAI_API_KEY for live image edits
-              </Badge>
-            </div>
-          ) : null}
-        </dl>
+      {metadata?.mock ? (
+        <Badge variant="secondary">Preview mode</Badge>
       ) : null}
     </div>
   );

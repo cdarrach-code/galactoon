@@ -49,6 +49,8 @@ export function parseCustomization(
     delete clone.fixedStyleInstructions;
     delete clone.masterReference;
     delete clone.model;
+    // Framing is fixed product-wide — coerce any legacy/full-body values.
+    clone.framing = "three-quarter";
     return characterCustomizationSchema.parse(clone);
   }
 

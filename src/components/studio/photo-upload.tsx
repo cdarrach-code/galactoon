@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, X } from "lucide-react";
+import { Camera, Upload, X } from "lucide-react";
 
 interface PhotoUploadProps {
   file: File | null;
@@ -33,13 +33,25 @@ export function PhotoUpload({
 
   return (
     <div className="space-y-3">
-      <div
+      <div className="space-y-1">
+        <h2 className="font-[family-name:var(--font-display)] text-base text-[color:var(--ink)] sm:text-lg">
+          Your photo
+        </h2>
+        <p className="text-sm text-[color:var(--muted-copy)]">
+          Take a selfie or choose a clear face photo.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        disabled={disabled}
         className={[
-          "relative flex min-h-52 flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed transition-colors",
+          "upload-zone relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed transition-colors",
           dragOver
-            ? "border-[color:var(--plasma)] bg-[color:var(--plasma)]/15"
-            : "border-[color:var(--ink-soft)]/25 bg-[color:var(--panel)]/70",
+            ? "border-[color:var(--plasma)] bg-[color:var(--plasma)]/10"
+            : "border-[color:var(--ink-soft)]/25 bg-[color:var(--void)]/45",
         ].join(" ")}
+        onClick={() => inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -48,26 +60,26 @@ export function PhotoUpload({
         onDrop={(e) => {
           e.preventDefault();
           setDragOver(false);
-          const dropped = e.dataTransfer.files?.[0] ?? null;
-          acceptFile(dropped);
+          acceptFile(e.dataTransfer.files?.[0] ?? null);
         }}
       >
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={previewUrl}
-            alt="Uploaded identity photograph"
+            alt="Uploaded photo preview"
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
-          <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
-            <Upload className="h-8 w-8 text-[color:var(--plasma)]" />
+          <div className="flex flex-col items-center gap-2 px-5 py-10 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--plasma)]/15 text-[color:var(--plasma)]">
+              <Camera className="h-7 w-7" />
+            </div>
             <p className="font-[family-name:var(--font-display)] text-[color:var(--ink)]">
-              Drop a photograph
+              Tap to upload a photo
             </p>
-            <p className="max-w-xs text-sm text-[color:var(--muted-copy)]">
-              Identity comes from your photo. Artistic style comes from the
-              locked classic 2D master reference.
+            <p className="max-w-[16rem] text-xs text-[color:var(--muted-copy)] sm:text-sm">
+              Works best with a front-facing portrait.
             </p>
           </div>
         )}
@@ -75,24 +87,29 @@ export function PhotoUpload({
           ref={inputRef}
           type="file"
           accept="image/*"
+          capture="user"
           className="sr-only"
           disabled={disabled}
           onChange={(e) => acceptFile(e.target.files?.[0] ?? null)}
         />
-      </div>
-      <div className="flex flex-wrap gap-2">
+      </button>
+
+      <div className="flex gap-2">
         <Button
           type="button"
           variant="secondary"
+          className="min-h-11 flex-1"
           disabled={disabled}
           onClick={() => inputRef.current?.click()}
         >
-          {file ? "Replace photo" : "Choose photo"}
+          <Upload className="mr-2 h-4 w-4" />
+          {file ? "Replace" : "Choose photo"}
         </Button>
         {file ? (
           <Button
             type="button"
             variant="ghost"
+            className="min-h-11"
             disabled={disabled}
             onClick={() => {
               if (inputRef.current) inputRef.current.value = "";

@@ -29,7 +29,8 @@ export const EXPRESSIONS = ["friendly", "focused", "serious"] as const;
 
 export const BACKGROUNDS = ["transparent", "galaxy", "alien-planet"] as const;
 
-export const FRAMINGS = ["full-body", "three-quarter"] as const;
+/** Framing is fixed to three-quarter — not offered as a user control. */
+export const FRAMINGS = ["three-quarter"] as const;
 
 export type SwordColor = (typeof SWORD_COLORS)[number];
 export type SwordDesign = (typeof SWORD_DESIGNS)[number];
@@ -58,7 +59,7 @@ export const DEFAULT_CUSTOMIZATION: CharacterCustomization = {
   stance: "action",
   expression: "friendly",
   background: "transparent",
-  framing: "full-body",
+  framing: "three-quarter",
 };
 
 export interface GeneratedImageMetadata {

@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { StyleLockBanner } from "@/components/studio/style-lock-banner";
 import { PhotoUpload } from "@/components/studio/photo-upload";
 import { CustomizationPanel } from "@/components/studio/customization-panel";
 import { GenerationResult } from "@/components/studio/generation-result";
@@ -35,7 +34,7 @@ export function StudioApp() {
 
   function handleGenerate() {
     if (!file) {
-      setError("Upload a photograph first.");
+      setError("Upload a photo first.");
       return;
     }
 
@@ -44,7 +43,10 @@ export function StudioApp() {
       try {
         const form = new FormData();
         form.append("photo", file);
-        form.append("customization", JSON.stringify(customization));
+        form.append(
+          "customization",
+          JSON.stringify({ ...customization, framing: "three-quarter" }),
+        );
 
         const response = await fetch("/api/generate", {
           method: "POST",
@@ -72,82 +74,67 @@ export function StudioApp() {
   }
 
   return (
-    <div className="studio-shell relative min-h-screen overflow-hidden">
+    <div className="studio-shell relative overflow-x-hidden">
       <div className="nebula-layer pointer-events-none absolute inset-0" aria-hidden />
       <div className="sparkle-layer pointer-events-none absolute inset-0" aria-hidden />
 
-      <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-        <Link href="/" className="group">
-          <p className="brand-mark font-[family-name:var(--font-display)] text-2xl tracking-tight text-[color:var(--ink)] sm:text-3xl">
+      <header className="relative z-10 mx-auto flex w-full max-w-lg items-center justify-between px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] sm:max-w-xl sm:px-5 md:max-w-3xl">
+        <Link href="/" className="min-w-0">
+          <p className="brand-mark font-[family-name:var(--font-display)] text-[1.55rem] leading-none tracking-tight text-[color:var(--ink)] sm:text-3xl">
             Galactic Toon Studio
           </p>
-          <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--muted-copy)]">
-            Classic 2D · locked style
-          </p>
         </Link>
-        <nav className="flex items-center gap-3 text-sm">
-          <Link
-            href="/admin"
-            className="text-[color:var(--muted-copy)] transition-colors hover:text-[color:var(--ink)]"
-          >
+        <nav className="flex shrink-0 items-center gap-3 text-xs text-[color:var(--muted-copy)] sm:text-sm">
+          <Link href="/admin" className="hover:text-[color:var(--ink)]">
             Admin
           </Link>
-          <Link
-            href="/compare"
-            className="text-[color:var(--muted-copy)] transition-colors hover:text-[color:var(--ink)]"
-          >
+          <Link href="/compare" className="hover:text-[color:var(--ink)]">
             Compare
           </Link>
         </nav>
       </header>
 
-      <main className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20 sm:px-8">
-        <section className="hero-block mb-10 max-w-2xl pt-6 sm:pt-10">
-          <h1 className="font-[family-name:var(--font-display)] text-4xl leading-[1.05] text-[color:var(--ink)] sm:text-5xl">
-            Turn a photo into a classic 2D galactic hero
+      <main className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-5 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:max-w-xl sm:px-5 md:max-w-3xl md:gap-6">
+        <section className="hero-block space-y-2">
+          <h1 className="font-[family-name:var(--font-display)] text-[1.85rem] leading-[1.08] text-[color:var(--ink)] sm:text-4xl">
+            Become a galactic hero
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-[color:var(--muted-copy)] sm:text-lg">
-            Every character shares one permanent hand-drawn feature-film look.
-            You choose the sword, stance, and expression — never the animation
-            style.
+          <p className="max-w-md text-sm leading-relaxed text-[color:var(--muted-copy)] sm:text-base">
+            Upload a photo, pick your sword and stance, and generate your
+            character.
           </p>
-          <div className="mt-6">
-            <StyleLockBanner />
-          </div>
         </section>
 
-        <section className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="space-y-8 rounded-[1.75rem] border border-[color:var(--ink-soft)]/10 bg-[color:var(--panel)]/55 p-5 shadow-[0_24px_80px_rgba(20,40,80,0.08)] backdrop-blur-md sm:p-7">
-            <PhotoUpload
-              file={file}
-              previewUrl={previewUrl}
-              onChange={setFile}
-              disabled={pending}
-            />
-            <CustomizationPanel
-              value={customization}
-              onChange={setCustomization}
-              disabled={pending}
-            />
-            <Button
-              type="button"
-              size="lg"
-              className="generate-btn w-full sm:w-auto"
-              disabled={pending || !file}
-              onClick={handleGenerate}
-            >
-              {pending ? "Generating…" : "Generate classic 2D character"}
-            </Button>
-          </div>
+        <section className="studio-panel space-y-5 rounded-3xl p-4 sm:p-6">
+          <PhotoUpload
+            file={file}
+            previewUrl={previewUrl}
+            onChange={setFile}
+            disabled={pending}
+          />
+          <CustomizationPanel
+            value={customization}
+            onChange={setCustomization}
+            disabled={pending}
+          />
+          <Button
+            type="button"
+            size="lg"
+            className="generate-btn h-12 w-full text-base"
+            disabled={pending || !file}
+            onClick={handleGenerate}
+          >
+            {pending ? "Generating…" : "Generate character"}
+          </Button>
+        </section>
 
-          <div className="rounded-[1.75rem] border border-[color:var(--ink-soft)]/10 bg-[color:var(--panel)]/55 p-5 shadow-[0_24px_80px_rgba(20,40,80,0.08)] backdrop-blur-md sm:p-7">
-            <GenerationResult
-              imageUrl={imageUrl}
-              metadata={metadata}
-              loading={pending}
-              error={error}
-            />
-          </div>
+        <section className="studio-panel rounded-3xl p-4 sm:p-6">
+          <GenerationResult
+            imageUrl={imageUrl}
+            metadata={metadata}
+            loading={pending}
+            error={error}
+          />
         </section>
       </main>
     </div>

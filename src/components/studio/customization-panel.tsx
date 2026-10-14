@@ -11,7 +11,6 @@ import {
 import {
   BACKGROUNDS,
   EXPRESSIONS,
-  FRAMINGS,
   STANCES,
   SWORD_COLORS,
   SWORD_DESIGNS,
@@ -19,18 +18,19 @@ import {
   type CharacterCustomization,
 } from "@/lib/style/types";
 
-const LABELS: Record<keyof CharacterCustomization, string> = {
+type UserSettingKey = Exclude<keyof CharacterCustomization, "framing">;
+
+const LABELS: Record<UserSettingKey, string> = {
   swordColor: "Energy Sword Color",
   swordDesign: "Sword Design",
   swordPosition: "Sword Position",
   stance: "Stance",
   expression: "Expression",
   background: "Background",
-  framing: "Framing",
 };
 
 const OPTIONS: {
-  [K in keyof CharacterCustomization]: readonly CharacterCustomization[K][];
+  [K in UserSettingKey]: readonly CharacterCustomization[K][];
 } = {
   swordColor: SWORD_COLORS,
   swordDesign: SWORD_DESIGNS,
@@ -38,7 +38,6 @@ const OPTIONS: {
   stance: STANCES,
   expression: EXPRESSIONS,
   background: BACKGROUNDS,
-  framing: FRAMINGS,
 };
 
 function formatOption(value: string): string {
@@ -59,30 +58,35 @@ export function CustomizationPanel({
   onChange,
   disabled,
 }: CustomizationPanelProps) {
-  const keys = Object.keys(LABELS) as (keyof CharacterCustomization)[];
+  const keys = Object.keys(LABELS) as UserSettingKey[];
 
   return (
-    <fieldset className="space-y-4" disabled={disabled}>
-      <legend className="font-[family-name:var(--font-display)] text-lg text-[color:var(--ink)]">
-        Character settings
+    <fieldset className="space-y-3" disabled={disabled}>
+      <legend className="font-[family-name:var(--font-display)] text-base text-[color:var(--ink)] sm:text-lg">
+        Character
       </legend>
-      <p className="text-sm text-[color:var(--muted-copy)]">
-        Customize the character only. The classic 2D animation style stays fixed
-        for every generation.
-      </p>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3">
         {keys.map((key) => (
-          <div key={key} className="space-y-2">
-            <Label htmlFor={key}>{LABELS[key]}</Label>
+          <div key={key} className="space-y-1.5">
+            <Label htmlFor={key} className="text-[color:var(--muted-copy)]">
+              {LABELS[key]}
+            </Label>
             <Select
               value={value[key]}
               disabled={disabled}
               onValueChange={(next) => {
                 if (!next) return;
-                onChange({ ...value, [key]: next });
+                onChange({
+                  ...value,
+                  [key]: next,
+                  framing: "three-quarter",
+                });
               }}
             >
-              <SelectTrigger id={key} className="w-full bg-[color:var(--panel)]">
+              <SelectTrigger
+                id={key}
+                className="min-h-11 w-full bg-[color:var(--void)]/50"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
