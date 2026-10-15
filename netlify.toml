@@ -6,6 +6,11 @@
   NODE_VERSION = "22"
   # Enable developer comparison UI on the hosted site (admin still gated).
   DEV_COMPARISON_MODE = "true"
+  APPROVAL_EMAIL = "cdarrach@gmail.com"
+
+# Keep HTML form detection on so design-approval submissions reach Gmail.
+[build.processing.html]
+  pretty_urls = true
 
 # Bundle style assets + admin defaults into serverless functions so
 # classic-2d-master.png is available at runtime on Netlify.

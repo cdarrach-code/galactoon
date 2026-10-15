@@ -12,7 +12,7 @@ The animation aesthetic is permanently locked (`classic2d-v2.1`). Users customiz
 - **Admin reference replacement** — replace the master PNG via `/admin` without code changes
 - **Developer comparison mode** — `/compare` generates multiple characters to inspect style consistency
 - **Metadata versioning** — every result stores `styleVersion: classic2d-v2.1` with the generation
-- **Approve & email** — “Approve final design” emails the image to `cdarrach@gmail.com` (Resend when `RESEND_API_KEY` is set; otherwise browser FormSubmit)
+- **Approve & email** — “Approve final design” emails the image to `cdarrach@gmail.com` via Netlify Forms (Gmail notification) or Resend when `RESEND_API_KEY` is set
 
 ## Run locally
 

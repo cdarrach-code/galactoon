@@ -13,7 +13,7 @@ import {
 } from "@/lib/image/prepare-upload";
 import {
   APPROVAL_EMAIL,
-  sendApprovalViaFormSubmit,
+  sendApprovalEmail,
 } from "@/lib/image/send-approval-email";
 import {
   DEFAULT_CUSTOMIZATION,
@@ -121,8 +121,8 @@ export function StudioApp() {
       if (response.ok && payload?.ok) {
         emailedTo = payload.emailedTo || APPROVAL_EMAIL;
       } else {
-        // Browser FormSubmit reaches the inbox when server mailers are unavailable.
-        const clientResult = await sendApprovalViaFormSubmit({
+        // Client path: Netlify Forms (prod) or FormSubmit (local fallback).
+        const clientResult = await sendApprovalEmail({
           imageDataUrl: imageUrl,
           metadata,
         });
@@ -130,7 +130,9 @@ export function StudioApp() {
       }
 
       setApproved(true);
-      setApproveMessage(`Final design emailed to ${emailedTo}.`);
+      setApproveMessage(
+        `Final design emailed to ${emailedTo}. Check Gmail (and Spam) for the image link/attachment.`,
+      );
     } catch (err) {
       setApproveMessage(
         err instanceof Error ? err.message : "Could not send approval email.",

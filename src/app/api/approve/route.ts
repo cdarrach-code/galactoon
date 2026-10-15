@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  APPROVAL_EMAIL,
+  buildApprovalFormData,
+} from "@/lib/image/send-approval-email";
 
 export const maxDuration = 30;
-
-const APPROVAL_EMAIL =
-  process.env.APPROVAL_EMAIL?.trim() || "cdarrach@gmail.com";
 
 function parseDataUrl(dataUrl: string): {
   mimeType: string;
   base64: string;
   extension: string;
+  bytes: Buffer;
 } {
   const match = /^data:([^;]+);base64,([\s\S]+)$/.exec(dataUrl);
   if (!match) {
@@ -21,7 +23,12 @@ function parseDataUrl(dataUrl: string): {
     : mimeType.includes("webp")
       ? "webp"
       : "jpg";
-  return { mimeType, base64, extension };
+  return {
+    mimeType,
+    base64,
+    extension,
+    bytes: Buffer.from(base64, "base64"),
+  };
 }
 
 async function sendWithResend(options: {
@@ -72,6 +79,48 @@ async function sendWithResend(options: {
   return { ok: true, provider: "resend" };
 }
 
+async function sendWithNetlifyForms(options: {
+  filename: string;
+  mimeType: string;
+  bytes: Buffer;
+  metadata?: Record<string, unknown>;
+}): Promise<
+  { ok: true; provider: "netlify-forms" } | { ok: false; error: string }
+> {
+  const siteUrl = (
+    process.env.URL ||
+    process.env.DEPLOY_PRIME_URL ||
+    process.env.APPROVAL_FORMS_URL ||
+    "https://galactoon.netlify.app"
+  ).replace(/\/$/, "");
+
+  const form = buildApprovalFormData({
+    file: new Blob([new Uint8Array(options.bytes)], { type: options.mimeType }),
+    filename: options.filename,
+    metadata: {
+      styleVersion:
+        typeof options.metadata?.styleVersion === "string"
+          ? options.metadata.styleVersion
+          : undefined,
+      customization: options.metadata?.customization,
+    },
+  });
+
+  const response = await fetch(`${siteUrl}/__forms.html`, {
+    method: "POST",
+    body: form,
+  });
+
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: `Netlify Forms failed (${response.status})`,
+    };
+  }
+
+  return { ok: true, provider: "netlify-forms" };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as {
@@ -87,21 +136,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Server-side FormSubmit is blocked by Cloudflare from hosting IPs.
-    // Without Resend, the client falls back to browser FormSubmit.
-    if (!process.env.RESEND_API_KEY) {
-      return NextResponse.json(
-        {
-          ok: false,
-          fallback: "client",
-          emailedTo: APPROVAL_EMAIL,
-          error: "Server mailer not configured; use client fallback.",
-        },
-        { status: 501 },
-      );
-    }
-
-    const { mimeType, base64, extension } = parseDataUrl(body.image);
+    const { mimeType, base64, extension, bytes } = parseDataUrl(body.image);
     const subject = "Approved Galactic Toon Studio design";
     const customization = body.metadata?.customization ?? {};
     const styleVersion = body.metadata?.styleVersion ?? "unknown";
@@ -129,7 +164,12 @@ export async function POST(request: NextRequest) {
     `;
 
     const filename = `galactic-toon-approved.${extension}`;
-    const result = await sendWithResend({
+
+    type SendResult =
+      | { ok: true; provider: "resend" | "netlify-forms" }
+      | { ok: false; error: string };
+
+    let result: SendResult = await sendWithResend({
       subject,
       html,
       text,
@@ -137,6 +177,15 @@ export async function POST(request: NextRequest) {
       mimeType,
       base64,
     });
+
+    if (!result.ok) {
+      result = await sendWithNetlifyForms({
+        filename,
+        mimeType,
+        bytes,
+        metadata: body.metadata,
+      });
+    }
 
     if (!result.ok) {
       return NextResponse.json(

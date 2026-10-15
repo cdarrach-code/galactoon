@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Galactic Toon Studio forms</title>
+  </head>
+  <body>
+    <!--
+      Static form for Netlify Forms detection at build time.
+      Runtime approvals POST multipart data with form-name=design-approval.
+    -->
+    <form
+      name="design-approval"
+      method="POST"
+      data-netlify="true"
+      data-netlify-honeypot="bot-field"
+      enctype="multipart/form-data"
+      hidden
+    >
+      <input type="text" name="bot-field" />
+      <input type="text" name="message" />
+      <input type="text" name="styleVersion" />
+      <input type="text" name="customization" />
+      <input type="file" name="attachment" />
+    </form>
+  </body>
+</html>
