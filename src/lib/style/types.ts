@@ -27,7 +27,7 @@ export const STANCES = ["action", "calm"] as const;
 
 export const EXPRESSIONS = ["friendly", "focused", "serious"] as const;
 
-export const BACKGROUNDS = ["transparent", "galaxy", "alien-planet"] as const;
+export const BACKGROUNDS = ["galaxy", "alien-planet"] as const;
 
 /** Framing is fixed to three-quarter — not offered as a user control. */
 export const FRAMINGS = ["three-quarter"] as const;
@@ -58,7 +58,7 @@ export const DEFAULT_CUSTOMIZATION: CharacterCustomization = {
   swordPosition: "raised",
   stance: "action",
   expression: "friendly",
-  background: "transparent",
+  background: "galaxy",
   framing: "three-quarter",
 };
 

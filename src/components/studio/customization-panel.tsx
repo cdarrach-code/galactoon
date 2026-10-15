@@ -46,7 +46,6 @@ const OPTION_LABELS: Partial<Record<string, string>> = {
   crossguard: "Crossguard",
   curved: "Curved Hilt",
   "alien-planet": "Alien Landscape",
-  transparent: "Transparent Background",
   galaxy: "Galaxy Background",
 };
 

@@ -160,7 +160,6 @@ export async function generateCharacter(
   const master = await loadMasterStyleReference();
   const model = Classic2DStyleProfile.modelConfig.model;
 
-  // Metadata model is filled after we resolve transparent-background fallback.
   const metadataBase: Omit<GeneratedImageMetadata, "mock" | "model"> = {
     styleVersion: Classic2DStyleProfile.styleVersion,
     styleProfileVersion: Classic2DStyleProfile.profileVersion,
@@ -199,33 +198,19 @@ export async function generateCharacter(
     return toFile(input.photoBytes, safeName, { type: safeMime });
   }
 
-  const wantsTransparent = customization.background === "transparent";
-  // gpt-image-2 does not support transparent backgrounds — fall back for alpha.
-  const effectiveModel =
-    wantsTransparent && model.includes("gpt-image-2")
-      ? "gpt-image-1.5"
-      : model;
-  // JPEG cannot carry transparency — use PNG only when needed.
-  const outputFormat = wantsTransparent
-    ? "png"
-    : Classic2DStyleProfile.modelConfig.outputFormat;
-
   // gpt-image-2 rejects input_fidelity (always high). Older models need it.
   const supportsInputFidelity =
-    !effectiveModel.includes("gpt-image-2") &&
-    !effectiveModel.includes("mini");
+    !model.includes("gpt-image-2") && !model.includes("mini");
 
   const baseOptions = {
-    model: effectiveModel,
+    model,
     ...(supportsInputFidelity
       ? { input_fidelity: Classic2DStyleProfile.modelConfig.inputFidelity }
       : {}),
     quality: Classic2DStyleProfile.modelConfig.quality,
     size: Classic2DStyleProfile.modelConfig.size,
-    background: wantsTransparent
-      ? ("transparent" as const)
-      : ("opaque" as const),
-    output_format: outputFormat,
+    background: "opaque" as const,
+    output_format: Classic2DStyleProfile.modelConfig.outputFormat,
   };
 
   // Identity-only maximizes face/age likeness (critical for kids/teens).
@@ -282,10 +267,12 @@ export async function generateCharacter(
     throw new Error("OpenAI image edit returned no image data.");
   }
 
+  const outputFormat = Classic2DStyleProfile.modelConfig.outputFormat;
+
   return {
     imageBase64,
     mimeType: `image/${outputFormat === "jpeg" ? "jpeg" : outputFormat}`,
-    metadata: { ...metadataBase, model: effectiveModel, mock: false },
+    metadata: { ...metadataBase, model, mock: false },
     prompt: {
       fullPrompt: built.fullPrompt,
       fixedStyleInstructions: built.fixedStyleInstructions,

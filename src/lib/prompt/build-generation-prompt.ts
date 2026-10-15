@@ -50,7 +50,6 @@ const EXPRESSION_COPY: Record<CharacterCustomization["expression"], string> = {
 };
 
 const BACKGROUND_COPY: Record<CharacterCustomization["background"], string> = {
-  transparent: "transparent background",
   galaxy: "galaxy background",
   "alien-planet": "alien landscape",
 };
