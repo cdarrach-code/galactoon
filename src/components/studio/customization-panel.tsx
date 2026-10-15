@@ -47,6 +47,7 @@ const OPTION_LABELS: Partial<Record<string, string>> = {
   curved: "Curved Hilt",
   "alien-planet": "Alien Landscape",
   galaxy: "Galaxy Background",
+  "battle-ready": "Battle Ready",
 };
 
 function formatOption(value: string): string {

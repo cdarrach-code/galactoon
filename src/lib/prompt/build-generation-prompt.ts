@@ -47,6 +47,7 @@ const EXPRESSION_COPY: Record<CharacterCustomization["expression"], string> = {
   friendly: "friendly",
   focused: "focused",
   serious: "serious",
+  "battle-ready": "battle-ready",
 };
 
 const BACKGROUND_COPY: Record<CharacterCustomization["background"], string> = {

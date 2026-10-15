@@ -25,7 +25,12 @@ export const SWORD_POSITIONS = ["raised", "lowered", "diagonal"] as const;
 
 export const STANCES = ["action", "calm"] as const;
 
-export const EXPRESSIONS = ["friendly", "focused", "serious"] as const;
+export const EXPRESSIONS = [
+  "friendly",
+  "focused",
+  "serious",
+  "battle-ready",
+] as const;
 
 export const BACKGROUNDS = ["galaxy", "alien-planet"] as const;
 
