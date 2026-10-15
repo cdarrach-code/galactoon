@@ -21,8 +21,8 @@ describe("Classic2DStyleProfile", () => {
     expect(Classic2DStyleProfile.styleVersion).toBe("classic2d-v2.1");
     expect(Classic2DStyleProfile.modelConfig.model).toBe("gpt-image-2");
     expect(Classic2DStyleProfile.modelConfig.inputFidelity).toBe("high");
-    expect(Classic2DStyleProfile.profileVersion).toBe("3.1.2");
-    expect(Classic2DStyleProfile.modelConfig.size).toBe("1024x1536");
+    expect(Classic2DStyleProfile.profileVersion).toBe("3.1.0");
+    expect(Classic2DStyleProfile.modelConfig.size).toBe("1024x1024");
   });
 
   it("contains the locked classic 2D aesthetic requirements", () => {

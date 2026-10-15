@@ -7,7 +7,7 @@
 
 import { STYLE_VERSION, type StyleVersion } from "./types";
 
-export const CLASSIC_2D_STYLE_PROFILE_VERSION = "3.1.2";
+export const CLASSIC_2D_STYLE_PROFILE_VERSION = "3.1.0";
 
 export interface Classic2DStyleProfile {
   styleVersion: StyleVersion;
@@ -37,8 +37,7 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
     model: "gpt-image-2",
     quality: "medium",
     inputFidelity: "high",
-    // Generate portrait (fast/reliable on Netlify), then crop to square profile.
-    size: "1024x1536",
+    size: "1024x1024",
     outputFormat: "jpeg",
   },
   fixedStyleInstructions: [

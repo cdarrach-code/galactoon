@@ -75,14 +75,14 @@ export function StudioApp() {
           details?: string;
         }>(response);
 
-        if (!response.ok) {
+        if (!response.ok || payload?.error || !payload?.image) {
           throw new Error(
-            friendlyGenerateError(response.status, payload, null),
+            friendlyGenerateError(
+              response.status,
+              payload,
+              payload?.error ? new Error(payload.error) : null,
+            ),
           );
-        }
-
-        if (!payload?.image) {
-          throw new Error("No image was returned. Please try again.");
         }
 
         setImageUrl(payload.image);
