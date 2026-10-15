@@ -38,7 +38,7 @@ export function GenerationResult({
         Your character
       </h2>
 
-      <div className="relative mx-auto flex aspect-square w-full max-w-md items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--ink-soft)]/15 bg-[color:var(--void)]/55">
+      <div className="relative mx-auto flex aspect-square w-full max-w-md items-center justify-center overflow-hidden rounded-2xl border border-[color:var(--ink-soft)]/15 bg-[color:var(--void)]/55 sm:max-w-lg">
         {loading ? (
           <div className="flex flex-col items-center gap-3 px-6 text-center">
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-[color:var(--plasma)] border-t-transparent" />
@@ -58,7 +58,7 @@ export function GenerationResult({
           <img
             src={imageUrl}
             alt="Generated galactic character"
-            className="h-full w-full object-cover"
+            className="h-full w-full object-contain"
           />
         ) : (
           <p className="px-6 text-center text-sm text-[color:var(--muted-copy)]">

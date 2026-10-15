@@ -96,8 +96,7 @@ export function buildIdentityFirstPrompt(
     `${EXPRESSION_COPY[c.expression]} expression on THEIR face. ${STANCE_COPY[c.stance]} stance.`,
     `Glowing ${SWORD_COLOR_COPY[c.swordColor]} energy sword, ${SWORD_DESIGN_COPY[c.swordDesign]}, position ${SWORD_POSITION_COPY[c.swordPosition]}.`,
     `Background: ${BACKGROUND_COPY[c.background]}.`,
-    "Exact 1:1 square profile-photo framing: bust/upper-torso, face centered in the upper-middle, safe margins for circular avatar crop.",
-    "Show the complete energy sword from hilt to tip inside the square. Do not crop the head or sword. Fill the square with no letterboxing.",
+    "Three-quarter framing in a square 1:1 frame. Show the complete energy sword from hilt to tip. Do not crop the character.",
     "Original character only — no copyrighted characters. Wholesome family cartoon.",
     `Style lock version: ${profile.styleVersion} (profile ${profile.profileVersion}).`,
   ].join("\n");
@@ -120,7 +119,7 @@ export function buildSafetyFallbackPrompt(
     `${EXPRESSION_COPY[c.expression]} expression. ${STANCE_COPY[c.stance]} stance.`,
     `Glowing ${SWORD_COLOR_COPY[c.swordColor]} energy sword, ${SWORD_DESIGN_COPY[c.swordDesign]}, position ${SWORD_POSITION_COPY[c.swordPosition]}.`,
     `Background: ${BACKGROUND_COPY[c.background]}.`,
-    "Exact 1:1 square profile-photo framing with face centered and safe avatar margins. Show the complete energy sword from hilt to tip inside the square. Do not crop the head or sword. Strong silhouette. Original character only — no copyrighted characters.",
+    "Show the complete energy sword from hilt to tip. Do not crop the character. Strong silhouette. Square 1:1 frame. Original character only — no copyrighted characters.",
     `Style lock version: ${profile.styleVersion} (profile ${profile.profileVersion}).`,
   ].join("\n");
 }

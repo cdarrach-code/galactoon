@@ -35,7 +35,7 @@ describe("Classic2DStyleProfile", () => {
     expect(fixed).toMatch(/no 3D/i);
     expect(fixed).toMatch(/no photorealism/i);
     expect(fixed).toMatch(/exact age|same age|child or teen/i);
-    expect(fixed).toMatch(/1:1 square|square profile/i);
+    expect(fixed).toMatch(/square 1:1|1:1/i);
     expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber/i);
   });
 });
