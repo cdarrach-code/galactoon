@@ -21,8 +21,8 @@ describe("Classic2DStyleProfile", () => {
     expect(Classic2DStyleProfile.styleVersion).toBe("classic2d-v2.1");
     expect(Classic2DStyleProfile.modelConfig.model).toBe("gpt-image-2");
     expect(Classic2DStyleProfile.modelConfig.inputFidelity).toBe("high");
-    expect(Classic2DStyleProfile.profileVersion).toBe("3.1.1");
-    expect(Classic2DStyleProfile.modelConfig.size).toBe("1024x1024");
+    expect(Classic2DStyleProfile.profileVersion).toBe("3.1.2");
+    expect(Classic2DStyleProfile.modelConfig.size).toBe("1024x1536");
   });
 
   it("contains the locked classic 2D aesthetic requirements", () => {
@@ -35,7 +35,6 @@ describe("Classic2DStyleProfile", () => {
     expect(fixed).toMatch(/no 3D/i);
     expect(fixed).toMatch(/no photorealism/i);
     expect(fixed).toMatch(/exact age|same age|child or teen/i);
-    expect(fixed).toMatch(/square 1:1|1:1/i);
     expect(fixed).not.toMatch(/Jedi|Star Wars|lightsaber/i);
   });
 });

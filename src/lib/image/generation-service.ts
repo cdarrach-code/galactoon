@@ -13,6 +13,7 @@ import {
   type CharacterCustomization,
   type GeneratedImageMetadata,
 } from "@/lib/style/types";
+import { cropToSquareProfile } from "./crop-to-square";
 import { loadMasterStyleReference } from "./master-reference";
 
 export interface GenerateCharacterInput {
@@ -108,9 +109,8 @@ function mapGenerationError(err: unknown): Error {
 }
 
 function mockCartoonPng(label: string): string {
-  // Minimal valid 1x1 PNG — UI shows a styled placeholder panel when mock.
-  // Real generations return gpt-image output; mock keeps the app runnable offline.
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="768" height="1024">
+  // Square mock preview — real generations are cropped to square after OpenAI.
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#1a2744"/>
@@ -118,16 +118,16 @@ function mockCartoonPng(label: string): string {
     </linearGradient>
   </defs>
   <rect width="100%" height="100%" fill="url(#g)"/>
-  <rect x="64" y="80" width="640" height="840" rx="24" fill="#f4e9d4" stroke="#1c1408" stroke-width="8"/>
-  <circle cx="384" cy="320" r="110" fill="#e8b896" stroke="#1c1408" stroke-width="6"/>
-  <ellipse cx="340" cy="310" rx="14" ry="18" fill="#1c1408"/>
-  <ellipse cx="428" cy="310" rx="14" ry="18" fill="#1c1408"/>
-  <path d="M340 370 Q384 400 428 370" fill="none" stroke="#1c1408" stroke-width="6" stroke-linecap="round"/>
-  <rect x="300" y="460" width="168" height="220" rx="20" fill="#2f6fed" stroke="#1c1408" stroke-width="6"/>
-  <rect x="520" y="200" width="28" height="420" rx="8" fill="#5ad0ff" stroke="#1c1408" stroke-width="4"/>
-  <rect x="508" y="610" width="52" height="48" rx="8" fill="#6b7280" stroke="#1c1408" stroke-width="4"/>
-  <text x="384" y="760" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#1c1408">${escapeXml(label)}</text>
-  <text x="384" y="800" text-anchor="middle" font-family="Georgia, serif" font-size="18" fill="#5a4630">${STYLE_VERSION} · mock</text>
+  <rect x="96" y="96" width="832" height="832" rx="24" fill="#f4e9d4" stroke="#1c1408" stroke-width="8"/>
+  <circle cx="512" cy="360" r="120" fill="#e8b896" stroke="#1c1408" stroke-width="6"/>
+  <ellipse cx="464" cy="350" rx="14" ry="18" fill="#1c1408"/>
+  <ellipse cx="560" cy="350" rx="14" ry="18" fill="#1c1408"/>
+  <path d="M464 410 Q512 440 560 410" fill="none" stroke="#1c1408" stroke-width="6" stroke-linecap="round"/>
+  <rect x="420" y="520" width="184" height="240" rx="20" fill="#2f6fed" stroke="#1c1408" stroke-width="6"/>
+  <rect x="700" y="220" width="28" height="420" rx="8" fill="#5ad0ff" stroke="#1c1408" stroke-width="4"/>
+  <rect x="688" y="630" width="52" height="48" rx="8" fill="#6b7280" stroke="#1c1408" stroke-width="4"/>
+  <text x="512" y="820" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#1c1408">${escapeXml(label)}</text>
+  <text x="512" y="860" text-anchor="middle" font-family="Georgia, serif" font-size="18" fill="#5a4630">${STYLE_VERSION} · mock</text>
 </svg>`;
   return Buffer.from(svg).toString("base64");
 }
@@ -267,11 +267,12 @@ export async function generateCharacter(
     throw new Error("OpenAI image edit returned no image data.");
   }
 
-  const outputFormat = Classic2DStyleProfile.modelConfig.outputFormat;
+  // Same OpenAI portrait generation as before; crop to exact square for profiles.
+  const square = await cropToSquareProfile(imageBase64);
 
   return {
-    imageBase64,
-    mimeType: `image/${outputFormat === "jpeg" ? "jpeg" : outputFormat}`,
+    imageBase64: square.imageBase64,
+    mimeType: square.mimeType,
     metadata: { ...metadataBase, model, mock: false },
     prompt: {
       fullPrompt: built.fullPrompt,

@@ -7,7 +7,7 @@
 
 import { STYLE_VERSION, type StyleVersion } from "./types";
 
-export const CLASSIC_2D_STYLE_PROFILE_VERSION = "3.1.1";
+export const CLASSIC_2D_STYLE_PROFILE_VERSION = "3.1.2";
 
 export interface Classic2DStyleProfile {
   styleVersion: StyleVersion;
@@ -37,8 +37,8 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
     model: "gpt-image-2",
     quality: "medium",
     inputFidelity: "high",
-    // Square 1024×1024 for profile-photo use (exact 1:1, no letterboxing).
-    size: "1024x1024",
+    // Generate portrait (fast/reliable on Netlify), then crop to square profile.
+    size: "1024x1536",
     outputFormat: "jpeg",
   },
   fixedStyleInstructions: [
@@ -58,7 +58,6 @@ export const Classic2DStyleProfile: Classic2DStyleProfile = {
     "- original heroic galactic hero look — not any existing copyrighted character",
     "",
     "Composition requirements:",
-    "- square 1:1 frame (profile photo)",
     "- always show the complete energy sword from hilt to tip",
     "- do not crop the character",
     "- preserve clean edges and a strong silhouette",
