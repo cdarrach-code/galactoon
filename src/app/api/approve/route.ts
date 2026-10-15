@@ -72,52 +72,6 @@ async function sendWithResend(options: {
   return { ok: true, provider: "resend" };
 }
 
-async function sendWithFormSubmit(options: {
-  subject: string;
-  message: string;
-  filename: string;
-  mimeType: string;
-  base64: string;
-}): Promise<{ ok: true; provider: "formsubmit" } | { ok: false; error: string }> {
-  // Zero-config fallback: FormSubmit emails the attachment to APPROVAL_EMAIL.
-  // First use may require clicking a confirmation link sent to that inbox.
-  const response = await fetch(
-    `https://formsubmit.co/ajax/${encodeURIComponent(APPROVAL_EMAIL)}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        _subject: options.subject,
-        name: "Galactic Toon Studio",
-        message: options.message,
-        attachment: `data:${options.mimeType};base64,${options.base64}`,
-        _template: "table",
-      }),
-    },
-  );
-
-  const payload = (await response.json().catch(() => null)) as {
-    success?: string | boolean;
-    message?: string;
-    error?: string;
-  } | null;
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      error:
-        payload?.message ||
-        payload?.error ||
-        `FormSubmit failed (${response.status})`,
-    };
-  }
-
-  return { ok: true, provider: "formsubmit" };
-}
-
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as {
@@ -133,6 +87,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Server-side FormSubmit is blocked by Cloudflare from hosting IPs.
+    // Without Resend, the client falls back to browser FormSubmit.
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json(
+        {
+          ok: false,
+          fallback: "client",
+          emailedTo: APPROVAL_EMAIL,
+          error: "Server mailer not configured; use client fallback.",
+        },
+        { status: 501 },
+      );
+    }
+
     const { mimeType, base64, extension } = parseDataUrl(body.image);
     const subject = "Approved Galactic Toon Studio design";
     const customization = body.metadata?.customization ?? {};
@@ -140,6 +108,7 @@ export async function POST(request: NextRequest) {
     const text = [
       "A final character design was approved in Galactic Toon Studio.",
       "",
+      `Sent to: ${APPROVAL_EMAIL}`,
       `Style version: ${String(styleVersion)}`,
       `Customization: ${JSON.stringify(customization)}`,
       body.note ? `Note: ${body.note}` : "",
@@ -151,6 +120,7 @@ export async function POST(request: NextRequest) {
       <h2>Approved Galactic Toon design</h2>
       <p>A final character design was approved in Galactic Toon Studio.</p>
       <ul>
+        <li><strong>Sent to:</strong> ${APPROVAL_EMAIL}</li>
         <li><strong>Style version:</strong> ${String(styleVersion)}</li>
         <li><strong>Customization:</strong> <code>${JSON.stringify(customization)}</code></li>
       </ul>
@@ -159,12 +129,7 @@ export async function POST(request: NextRequest) {
     `;
 
     const filename = `galactic-toon-approved.${extension}`;
-
-    type SendResult =
-      | { ok: true; provider: "resend" | "formsubmit" }
-      | { ok: false; error: string };
-
-    let result: SendResult = await sendWithResend({
+    const result = await sendWithResend({
       subject,
       html,
       text,
@@ -174,18 +139,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (!result.ok) {
-      result = await sendWithFormSubmit({
-        subject,
-        message: text,
-        filename,
-        mimeType,
-        base64,
-      });
-    }
-
-    if (!result.ok) {
       return NextResponse.json(
         {
+          ok: false,
+          fallback: "client",
+          emailedTo: APPROVAL_EMAIL,
           error: "Could not send approval email.",
           details: result.error,
         },
@@ -202,6 +160,9 @@ export async function POST(request: NextRequest) {
     console.error("[approve]", err);
     return NextResponse.json(
       {
+        ok: false,
+        fallback: "client",
+        emailedTo: APPROVAL_EMAIL,
         error: "Approval email failed.",
         details: err instanceof Error ? err.message : String(err),
       },

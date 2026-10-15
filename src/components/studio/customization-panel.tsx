@@ -100,7 +100,7 @@ export function CustomizationPanel({
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent alignItemWithTrigger={false}>
                 {OPTIONS[key].map((option) => (
                   <SelectItem key={option} value={option}>
                     {formatOption(option)}

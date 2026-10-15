@@ -12,6 +12,10 @@ import {
   readJsonSafe,
 } from "@/lib/image/prepare-upload";
 import {
+  APPROVAL_EMAIL,
+  sendApprovalViaFormSubmit,
+} from "@/lib/image/send-approval-email";
+import {
   DEFAULT_CUSTOMIZATION,
   type CharacterCustomization,
   type GeneratedImageMetadata,
@@ -96,6 +100,8 @@ export function StudioApp() {
     setApproving(true);
     setApproveMessage(null);
     try {
+      let emailedTo = APPROVAL_EMAIL;
+
       const response = await fetch("/api/approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -109,19 +115,22 @@ export function StudioApp() {
         emailedTo?: string;
         error?: string;
         details?: string;
-        provider?: string;
+        fallback?: string;
       }>(response);
 
-      if (!response.ok || !payload?.ok) {
-        throw new Error(
-          payload?.details || payload?.error || "Could not send approval email.",
-        );
+      if (response.ok && payload?.ok) {
+        emailedTo = payload.emailedTo || APPROVAL_EMAIL;
+      } else {
+        // Browser FormSubmit reaches the inbox when server mailers are unavailable.
+        const clientResult = await sendApprovalViaFormSubmit({
+          imageDataUrl: imageUrl,
+          metadata,
+        });
+        emailedTo = clientResult.emailedTo;
       }
 
       setApproved(true);
-      setApproveMessage(
-        `Final design emailed to ${payload.emailedTo || "cdarrach@gmail.com"}.`,
-      );
+      setApproveMessage(`Final design emailed to ${emailedTo}.`);
     } catch (err) {
       setApproveMessage(
         err instanceof Error ? err.message : "Could not send approval email.",
@@ -132,24 +141,18 @@ export function StudioApp() {
   }
 
   return (
-    <div className="studio-shell relative overflow-x-hidden">
-      <div className="nebula-layer pointer-events-none absolute inset-0" aria-hidden />
-      <div className="sparkle-layer pointer-events-none absolute inset-0" aria-hidden />
+    <div className="studio-shell">
+      <div className="studio-backdrop" aria-hidden>
+        <div className="nebula-layer" />
+        <div className="sparkle-layer" />
+      </div>
 
-      <header className="relative z-10 mx-auto flex w-full max-w-lg items-center justify-between px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] sm:max-w-xl sm:px-5 md:max-w-3xl">
-        <Link href="/" className="min-w-0">
+      <header className="relative z-10 mx-auto w-full max-w-lg px-4 pb-2 pt-[max(1rem,env(safe-area-inset-top))] sm:max-w-xl sm:px-5 md:max-w-3xl">
+        <Link href="/" className="inline-block min-w-0">
           <p className="brand-mark font-[family-name:var(--font-display)] text-[1.55rem] leading-none tracking-tight text-[color:var(--ink)] sm:text-3xl">
             Galactic Toon Studio
           </p>
         </Link>
-        <nav className="flex shrink-0 items-center gap-3 text-xs text-[color:var(--muted-copy)] sm:text-sm">
-          <Link href="/admin" className="hover:text-[color:var(--ink)]">
-            Admin
-          </Link>
-          <Link href="/compare" className="hover:text-[color:var(--ink)]">
-            Compare
-          </Link>
-        </nav>
       </header>
 
       <main className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-5 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:max-w-xl sm:px-5 md:max-w-3xl md:gap-6">

@@ -30,9 +30,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${manrope.variable} ${syne.variable} h-full antialiased`}
+      className={`${manrope.variable} ${syne.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col font-[family-name:var(--font-body)]">
+      <body className="min-h-dvh font-[family-name:var(--font-body)]">
         {children}
       </body>
     </html>
